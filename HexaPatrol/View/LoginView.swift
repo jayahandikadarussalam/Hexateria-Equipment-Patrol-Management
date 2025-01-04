@@ -11,36 +11,31 @@ struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var showAlert = false
-//    @StateObject private var viewModel = AuthViewModel()
     @EnvironmentObject var viewModel: AuthViewModel
     
     var body: some View {
-//        if viewModel.isLoggedIn {
-//            UserInfoView(user: viewModel.user)
-//        } else {
             NavigationStack {
                 VStack(alignment: .leading) {
                     HStack {
                         Text("Equipment Patrol Management")
                             .font(.title)
                             .fontWeight(.bold)
-                        Spacer()
                     }
                     
                     HStack {
                         Text("Log in now to continue patrol")
                             .font(.subheadline)
                             .foregroundColor(Color.gray)
-                        Spacer()
                     }
                     
                     HStack {
                         Image("PatrolChecking")
                             .resizable()
+                            .padding()
                             .scaledToFit()
                     }
                     
-                    VStack(spacing: 24) {
+                    VStack(spacing: 20) {
                         VStack(alignment: .leading) {
                             InputView(text: $viewModel.email,
                                       title: "Email Address",
@@ -58,7 +53,7 @@ struct LoginView: View {
                             ValidationMessageView(condition: !viewModel.password.isEmpty && viewModel.password.count < 6,
                                                   message: "Password is less than 6 characters.")
                         }
-                        .padding(.bottom, 32)
+                        .padding(.bottom, 10)
                         
                         Button {
                             Task {
@@ -84,17 +79,12 @@ struct LoginView: View {
                                 .font(.footnote)
                                 .multilineTextAlignment(.center)
                         }
-                        
-                        Spacer()
-                        
                     }
                 } // End VStack
             } // End NavigationStack
             .padding()
         }
-
     }
-//}
 
 let screen = UIScreen.main.bounds
 

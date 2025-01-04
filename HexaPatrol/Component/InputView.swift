@@ -9,9 +9,11 @@ import SwiftUI
 
 struct InputView: View {
     @Binding var text: String
+    @State private var showPassword: Bool = false
     let title: String
     let placeholder: String
     var isSecureField = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
@@ -20,19 +22,33 @@ struct InputView: View {
                 .font(.system(size: 18))
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
-            if isSecureField {
-                SecureField(placeholder, text: $text)
-                    .font(.system(size: 15))
-                    .foregroundColor(Color(.label))
-                    .textContentType(.newPassword)
-                    .disableAutocorrection(true)
-                    .textContentType(.newPassword)
+                .disableAutocorrection(true)
 
-            } else {
-                TextField(placeholder, text: $text)
-                    .font(.system(size: 15))
-                    .foregroundColor(Color(.label))
+            HStack {
+                if isSecureField && !showPassword {
+                    SecureField(placeholder, text: $text)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color(.label))
+                        .textContentType(.newPassword)
+                        .disableAutocorrection(true)
+                } else {
+                    TextField(placeholder, text: $text)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color(.label))
+                        .textContentType(.none)
+                        .disableAutocorrection(true)
+                }
+
+                if isSecureField {
+                    Button(action: {
+                        showPassword.toggle()
+                    }) {
+                        Image(systemName: showPassword ? "eye.fill" : "eye.slash.fill")
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
+                }
             }
+
             Divider()
                 .background(Color(.separator))
         }
@@ -40,7 +56,10 @@ struct InputView: View {
 }
 
 #Preview {
-    InputView(text: .constant(""),
-              title: "Email Address",
-              placeholder: "name@example.com")
+    InputView(
+        text: .constant(""),
+        title: "Password",
+        placeholder: "Enter your password",
+        isSecureField: true
+    )
 }

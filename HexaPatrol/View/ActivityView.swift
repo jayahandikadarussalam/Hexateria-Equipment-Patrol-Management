@@ -40,7 +40,7 @@ struct ActivityView: View {
                                 VStack(alignment: .leading) {
                                     Text("Area: \(area.areaName)")
                                         .font(.headline)
-                                    
+                                        .navigationTitle("Activity")
                                     ForEach(area.equipmentGroup, id: \.equipmentGroupID) { group in
                                         Text("Equipment Group: \(group.equipmentGroupName)")
                                             .font(.subheadline)
