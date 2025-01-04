@@ -5,13 +5,14 @@
 //  Created by Jaya Handika Darussalam on 01/01/25.
 //
 
-
 import SwiftUI
 
 struct ActivityView: View {
     @State private var searchText = ""
     @ObservedObject var viewModel: AuthViewModel
     @State private var isRefreshing = false
+    @State private var refreshSuccess = false
+    @Namespace private var topID
     
     var filteredPlantData: [PlantData] {
         if searchText.isEmpty {
@@ -28,33 +29,44 @@ struct ActivityView: View {
     
     var body: some View {
         NavigationStack {
-            List(filteredPlantData, id: \.plantID) { plant in
-                Section(header: Text("Plant: \(plant.plantName)").font(.subheadline)) {
-                    ForEach(plant.areaData, id: \.areaID) { area in
-                        NavigationLink(destination: AreaDetailView(area: area)) {
-                            VStack(alignment: .leading) {
-                                Text("Area: \(area.areaName)")
-                                    .font(.headline)
-                                
-                                ForEach(area.equipmentGroup, id: \.equipmentGroupID) { group in
-                                    Text("Equipment Group: \(group.equipmentGroupName)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
+            ScrollViewReader { scrollProxy in // Store ScrollViewReader's proxy
+                List(filteredPlantData, id: \.plantID) { plant in
+                    Section(header: Text("Plant: \(plant.plantName)")
+                        .font(.subheadline)
+                        .id(topID)
+                    ) {
+                        ForEach(plant.areaData, id: \.areaID) { area in
+                            NavigationLink(destination: AreaDetailView(area: area)) {
+                                VStack(alignment: .leading) {
+                                    Text("Area: \(area.areaName)")
+                                        .font(.headline)
+                                    
+                                    ForEach(area.equipmentGroup, id: \.equipmentGroupID) { group in
+                                        Text("Equipment Group: \(group.equipmentGroupName)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
+                                .padding(.vertical, 4)
                             }
-                            .padding(.vertical, 4)
                         }
                     }
                 }
-            }
-            .refreshable {
-                await refreshData()
-            }
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-            .navigationTitle("Activity")
-            .overlay {
-                if isRefreshing {
-                    ProgressView()
+                .refreshable {
+                    // Use the scrollProxy from the ScrollViewReader's closure
+                    await refreshData()
+                    withAnimation {
+                        scrollProxy.scrollTo(topID, anchor: .top)
+                    }
+                }
+                .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+                .overlay {
+                    if isRefreshing {
+                        ProgressView()
+                    }
+                }
+                .alert("Data Refreshed Successfully", isPresented: $refreshSuccess) {
+                    Button("OK", role: .cancel) { }
                 }
             }
         }
@@ -64,11 +76,12 @@ struct ActivityView: View {
         isRefreshing = true
         defer { isRefreshing = false }
         
-        // Call the refresh function from viewModel
-        print("Refreshing data...")
         await viewModel.refreshHirarkiData()
         print("Data refreshed:", viewModel.plants)
+        
+        refreshSuccess = true
     }
+}
     
     // Area Detail View
     struct AreaDetailView: View {
@@ -93,20 +106,72 @@ struct ActivityView: View {
     // Equipment Type Detail View
     struct EquipmentTypeDetailView: View {
         let equipmentType: EquipmentType
+        @State private var expandedSections: Set<Int> = []
         
         var body: some View {
+//            List {
+//                ForEach(equipmentType.tagno, id: \.tagnoID) { tag in
+//                    Section(header: Text("Tagno: \(tag.tagnoName)").font(.subheadline)) {
+//                        ForEach(tag.parameter, id: \.parameterID) { param in
+//                            ParameterRow(parameter: param)
+//                        }
+//                    }
+//                }
+//            }
             List {
                 ForEach(equipmentType.tagno, id: \.tagnoID) { tag in
-                    Section(header: Text("Tagno: \(tag.tagnoName)").font(.subheadline)) {
-                        ForEach(tag.parameter, id: \.parameterID) { param in
-                            ParameterRow(parameter: param)
+                    Section(header: sectionHeader(for: tag)) {
+                        if expandedSections.contains(tag.tagnoID) {
+                            ForEach(tag.parameter, id: \.parameterID) { param in
+                                ParameterRow(parameter: param)
+                            }
                         }
                     }
                 }
             }
             .navigationTitle(equipmentType.equipmentTypeName)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Button("Expand All") {
+                            expandedSections = Set(equipmentType.tagno.map { $0.tagnoID })
+                        }
+                        Button("Collapse All") {
+                            expandedSections.removeAll()
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
+        }
+        
+        
+        private func sectionHeader(for tag: Tagno) -> some View {
+            HStack {
+                Text("Tagno: \(tag.tagnoName)")
+                    .font(.subheadline)
+//                    .foregroundColor(.blue)
+                Spacer()
+                Button(action: {
+                    toggleSection(tagID: tag.tagnoID)
+                }) {
+                    Image(systemName: expandedSections.contains(tag.tagnoID) ? "chevron.down" : "chevron.right")
+                        .foregroundColor(.blue)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        
+        private func toggleSection(tagID: Int) {
+            if expandedSections.contains(tagID) {
+                expandedSections.remove(tagID)
+            } else {
+                expandedSections.insert(tagID)
+            }
         }
     }
+    
     
     // Parameter Row View
     struct ParameterRow: View {
@@ -150,45 +215,33 @@ struct ActivityView: View {
                     }
                 }
                 
-                if !parameter.unit.isEmpty {
-                    Text("Unit: \(parameter.unit)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                Group {
+                    if !parameter.unit.isEmpty {
+                        Text("Unit: \(parameter.unit)")
+                    }
+                    let range = getValueRange()
+                    if !range.isEmpty {
+                        Text(range)
+                    }
+                    if !parameter.formType.isEmpty {
+                        Text("Type: \(parameter.formType)")
+                    }
+                    if !parameter.booleanOption.isEmpty {
+                        Text("Boolean Options: \(parameter.booleanOption)")
+                    }
+                    if !parameter.gap.isEmpty {
+                        Text("Gap: \(parameter.gap)")
+                    }
                 }
-                
-                let range = getValueRange()
-                if !range.isEmpty {
-                    Text(range)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                
-                if !parameter.formType.isEmpty {
-                    Text("Type: \(parameter.formType)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                
-                if !parameter.booleanOption.isEmpty {
-                    Text("Boolean Options: \(parameter.booleanOption)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                
-                if !parameter.gap.isEmpty {
-                    Text("Gap: \(parameter.gap)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
     }
+
+#Preview {
+    ActivityView(viewModel: MockAuthViewModel())
+        .environmentObject(MockAuthViewModel())
 }
 
-struct ActivityView_Previews: PreviewProvider {
-    static var previews: some View {
-        ActivityView(viewModel: MockAuthViewModel())
-            .environmentObject(MockAuthViewModel())
-    }
-}

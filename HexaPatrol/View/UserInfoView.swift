@@ -35,21 +35,11 @@ struct UserInfoView: View {
                 }
             
             //MARK: ActivityTab
-//            NavigationStack {
-//                VStack {
-//                    Spacer()
-//                        .font(.title)
-//                    // Add content for History tab here
-//                }
-//                .navigationTitle("Activity")
-//                .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-//                // Add .searchable here
+//            ActivityView(viewModel:viewModel)
+//            .tabItem {
+//                Image(systemName: "chart.line.uptrend.xyaxis")
+//                Text("Activity")
 //            }
-            ActivityView(viewModel:viewModel)
-            .tabItem {
-                Image(systemName: "chart.line.uptrend.xyaxis")
-                Text("Activity")
-            }
 
             //MARK: History Tab
             NavigationStack {
