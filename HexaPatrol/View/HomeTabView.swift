@@ -47,6 +47,32 @@ struct HomeTabView: View {
                     // MARK: Flow Statistics
                     HStack {
                         Button {
+                            cameraViewModel.showCamera()
+                        } label: {
+                            Text("NO")
+                                .padding()
+                                .foregroundColor(.pink)
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity, maxHeight: 40)
+                                .background(
+                                    RoundedRectangle(
+                                        cornerRadius: 8,
+                                        style: .continuous
+                                    )
+                                    .fill(Color.pink.opacity(0.2))
+                                )
+                        }
+                        .sheet(isPresented: $cameraViewModel.isShowingCamera) {
+                            ImagePicker(viewModel: cameraViewModel)
+                        }
+                        
+                        Spacer()
+                        
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 1, height: 30)
+                        
+                        Button {
                             navigateToActivity = true
                         } label: {
                             Text("YES")
@@ -62,34 +88,9 @@ struct HomeTabView: View {
                                     .fill(.green)
                                 )
                         }
-
-                        Spacer()
                         
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 1, height: 30)
+//                        Spacer()
                         
-                        Spacer()
-                        
-                        Button {
-                            cameraViewModel.showCamera()
-                        } label: {
-                            Text("NO")
-                                .padding()
-                                .foregroundColor(.white)
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity, maxHeight: 40)
-                                .background(
-                                    RoundedRectangle(
-                                        cornerRadius: 8,
-                                        style: .continuous
-                                    )
-                                    .fill(Color.pink.opacity(0.4))
-                                )
-                        }
-                        .sheet(isPresented: $cameraViewModel.isShowingCamera) {
-                            ImagePicker(viewModel: cameraViewModel)
-                        }
                     }
                     .padding(.horizontal, 16)
                 }
@@ -142,7 +143,7 @@ struct HomeTabView: View {
                         amount: "Area CA-2",
                         type: "Progress",
                         isOutgoing: false,
-                        progress: 0.40
+                        progress: 0.43
                     )
                     
                     TransactionItem(
@@ -183,14 +184,28 @@ struct TransactionItem: View {
         String(format: "%.0f%%", progress * 100) // Konversi ke persen
     }
     
+    var progressColor: Color {
+        switch progress {
+        case 0..<0.5:
+            return .red
+        case 0.5..<0.8:
+            return .orange
+        case 0.8...1.0:
+            return .green
+        default:
+            return .gray // Untuk nilai di luar rentang, meskipun seharusnya tidak terjadi
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 12) {
             Circle()
-                .fill(isOutgoing ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
+//                .fill(isOutgoing ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
+                .fill(progressColor.opacity(0.1))
                 .frame(width: 40, height: 40)
                 .overlay(
                     Image(systemName: isOutgoing ? "arrow.up" : "arrow.down")
-                        .foregroundColor(isOutgoing ? .green : .red)
+                        .foregroundColor(progressColor)
                 )
             
             VStack(alignment: .leading, spacing: 4) {
@@ -199,16 +214,15 @@ struct TransactionItem: View {
                 Text(date)
                     .font(.system(size: 14))
                     .foregroundColor(.gray)
-//                ProgressView(value: progress)
-//                   .tint(isOutgoing ? .green : .red)
-//                   .scaleEffect(x: 1, y: 1.5, anchor: .center)
+
                 HStack {
                     ProgressView(value: progress)
-                        .tint(isOutgoing ? .green : .red)
+//                        .tint(isOutgoing ? .green : .red)
+                        .tint(progressColor)
                         .scaleEffect(x: 1, y: 1.5, anchor: .center)
                     Text(progressPercentage)
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(progressColor)
                 }
             }
             

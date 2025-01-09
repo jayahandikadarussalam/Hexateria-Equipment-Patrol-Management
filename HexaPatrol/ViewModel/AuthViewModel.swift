@@ -155,7 +155,7 @@ class AuthViewModel: ObservableObject {
 
     // MARK: - Fetch hirarki data
     func fetchHirarkiData() async {
-        print("Starting fetchHirarkiData")
+//        print("Starting fetchHirarkiData")
         
         guard let token = token else {
             errorMessage = "No authentication token available"
@@ -182,7 +182,7 @@ class AuthViewModel: ObservableObject {
                 return
             }
             
-            print("Received response with status code: \(httpResponse.statusCode)")
+//            print("Received response with status code: \(httpResponse.statusCode)")
             
             guard httpResponse.statusCode == 200 else {
                 errorMessage = "Server error: \(httpResponse.statusCode)"
@@ -190,20 +190,20 @@ class AuthViewModel: ObservableObject {
                 return
             }
             
-            print("Starting JSON decode")
+//            print("Starting JSON decode")
             let decodedResponse = try JSONDecoder().decode(HierarchyResponse.self, from: data)
-            print("Successfully decoded HierarchyResponse")
+//            print("Successfully decoded HierarchyResponse")
             
             self.plants = decodedResponse.data
-            print("Plants array updated with \(self.plants.count) items")
+//            print("Plants array updated with \(self.plants.count) items")
             
             if !self.plants.isEmpty {
-                print("Starting to save hierarchy data")
+//                print("Starting to save hierarchy data")
                 do {
                     try await saveHierarchyData()
 //                    try await HierarchyDataPersistence.shared.saveHierarchyData()
                     try context.save()
-                    print("Successfully completed saveHierarchyData: \(plants)")
+//                    print("Successfully completed saveHierarchyData: \(plants)")
                 } catch {
                     print("Error in saveHierarchyData: \(error)")
                     errorMessage = "Error saving hierarchy data: \(error.localizedDescription)"
@@ -291,8 +291,8 @@ class AuthViewModel: ObservableObject {
     }
     
     // MARK: - Save hirarki to CoreData
-    func saveHierarchyData() async throws {
-        print("Beginning saveHierarchyData execution")
+    private func saveHierarchyData() async throws {
+//        print("Beginning saveHierarchyData execution")
         let context = PersistenceController.shared.context
 
         try await context.perform {
@@ -433,17 +433,17 @@ class AuthViewModel: ObservableObject {
                         }
                     }
                 }
-                print("Completed processing plant")
+//                print("Completed processing plant")
             }
 
-            print("Attempting to save context")
+//            print("Attempting to save context")
             try self.context.save()
-            print("Successfully saved context")
+//            print("Successfully saved context")
         }
     }
     
     // MARK: - Load hirarki from CoreData
-    func loadHierarchyData() async throws -> [PlantData] {
+    private func loadHierarchyData() async throws -> [PlantData] {
 //        print("Beginning loadHierarchyData execution")
         let context = PersistenceController.shared.context
         var plants: [PlantData] = []
