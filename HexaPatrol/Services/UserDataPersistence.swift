@@ -11,15 +11,16 @@ import CoreData
 
 class UserDataPersistence {
     static let shared = UserDataPersistence()
-    var user: User?
     public let context = PersistenceController.shared.container.viewContext
+    var user: User?
     private init() {}
 
-    // MARK: - Save user DataPersistance
+//    // MARK: - Save user DataPersistance
 //    func saveUserData() {
 //        if let user = self.user {
 //            if let encodedUser = try? JSONEncoder().encode(user) {
 //                UserDefaults.standard.set(encodedUser, forKey: "userData")
+//                UserDefaults.standard.synchronize()
 //                print("Users data saved successfully. Data: \(user)")
 //            }
 //        }
