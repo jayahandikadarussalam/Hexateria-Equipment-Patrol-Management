@@ -32,7 +32,6 @@ class AuthViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var password: String = ""
     @Published var isLoggedIn: Bool = false
-//    private let context = PersistenceController.shared.context
     private var cancellables = Set<AnyCancellable>()
     private let context = PersistenceController.shared.container.viewContext
     
@@ -130,94 +129,7 @@ class AuthViewModel: ObservableObject {
         }
     }
 
-    // Fetch Hirarki data
-//    func fetchHirarkiData() async {
-//        guard let token = token else { return }
-//
-//        var request = URLRequest(url: hirarkiURL)
-//        request.httpMethod = "GET"
-//        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//
-//        do {
-//            let (data, response) = try await URLSession.shared.data(for: request)
-//            
-//            if let responseBody = String(data: data, encoding: .utf8) {
-//                print("Raw Response Hirarki: \(responseBody)")
-//            }
-//            
-//            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-//                return
-//            }
-//            
-//            let decodedResponse = try JSONDecoder().decode(HierarchyResponse.self, from: data)
-//                DispatchQueue.main.async {
-//                    self.plants = decodedResponse.data
-//    //                print("Fetched hirarki: \(self.plants)")
-//                       if !self.plants.isEmpty {
-////                           self.saveHirarkiData()
-//                       } else {
-//                           print("No data to save. Plants array is empty.")
-//                       }
-//                }
-//    //            saveUserData()
-//            } catch {
-//                print("Error fetching plant data: \(error)")
-//            }
-//    }
-    
-    // MARK: - Hierarchy Data Fetching
-//    func fetchHirarkiData() async {
-//        guard let token = token else {
-//            errorMessage = "No authentication token available"
-//            return
-//        }
-//        
-//        var request = URLRequest(url: hirarkiURL)
-//        request.httpMethod = "GET"
-//        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//
-//        do {
-//            let (data, response) = try await URLSession.shared.data(for: request)
-//            
-//            if let responseBody = String(data: data, encoding: .utf8) {
-//                print("Raw Response Hierarchy: \(responseBody)")
-//            }
-//            
-//            guard let httpResponse = response as? HTTPURLResponse else {
-//                errorMessage = "Invalid response type"
-//                return
-//            }
-//            
-//            guard httpResponse.statusCode == 200 else {
-//                errorMessage = "Server error: \(httpResponse.statusCode)"
-//                return
-//            }
-//            
-//            let decodedResponse = try JSONDecoder().decode(HierarchyResponse.self, from: data)
-//            print("cek decode HierarchyResponse")
-//            self.plants = decodedResponse.data
-//            
-//            if !self.plants.isEmpty {
-//                print("Starting to save hierarchy data")
-////                await saveHierarchyData()
-////                print("Cek Cok")
-//                do {
-//                    await saveHierarchyData()
-//                    print("Successfully completed saveHierarchyData")
-//                } catch {
-//                    print("Error in saveHierarchyData: \(error)")
-//                    errorMessage = "Error saving hierarchy data: \(error.localizedDescription)"
-//                }
-//            } else {
-//                print("No data to save. Plants array is empty.")
-//            }
-//            
-//        } catch {
-//            errorMessage = "Error fetching hierarchy data: \(error.localizedDescription)"
-//            print("Error details: \(error)")
-//        }
-//    }
-    
+    // MARK: - Fetch Hirarki Data
     func fetchHirarkiData() async {
         print("Starting fetchHirarkiData")
         
@@ -632,7 +544,7 @@ class AuthViewModel: ObservableObject {
     }
     
 
-    // Clear error messages
+    // MARK: - Clear Error Messages
     func clearErrorMessage() {
         self.errorMessage = ""
         self.loginMessage = ""
