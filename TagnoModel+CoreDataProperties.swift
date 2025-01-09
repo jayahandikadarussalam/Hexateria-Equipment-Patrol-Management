@@ -17,7 +17,7 @@ extension TagnoModel {
     }
 
     @NSManaged public var tagnoID: Int64
-    @NSManaged public var tagnoModel: String?
+    @NSManaged public var tagnoName: String?
     @NSManaged public var tagnoFromType: EquipmentTypeModel?
     @NSManaged public var tagnoToParam: NSSet?
 

@@ -35,7 +35,7 @@ struct LoginView: View {
                             .scaledToFit()
                     }
                     
-                    VStack(spacing: 20) {
+                    VStack(spacing: 16) {
                         VStack(alignment: .leading) {
                             InputView(text: $viewModel.email,
                                       title: "Email Address",

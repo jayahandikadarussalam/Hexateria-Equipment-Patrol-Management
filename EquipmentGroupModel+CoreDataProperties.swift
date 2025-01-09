@@ -18,7 +18,8 @@ extension EquipmentGroupModel {
 
     @NSManaged public var equipmentGroupID: Int64
     @NSManaged public var equipmentGroupName: String?
-    @NSManaged public var areaFromGroup: EquipmentGroupModel?
+//    @NSManaged public var areaFromGroup: EquipmentGroupModel?
+    @NSManaged public var areaFromGroup: AreaModel?
     @NSManaged public var groupToType: NSSet?
 
 }

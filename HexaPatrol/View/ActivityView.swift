@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ActivityView: View {
-    @State private var searchText = ""
     @ObservedObject var viewModel: AuthViewModel
+    @State private var searchText = ""
     @State private var isRefreshing = false
     @State private var refreshSuccess = false
     @Namespace private var topID
@@ -202,7 +202,6 @@ struct ActivityView: View {
             return rangeComponents.joined(separator: ", ")
         }
 
-        
         var body: some View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {

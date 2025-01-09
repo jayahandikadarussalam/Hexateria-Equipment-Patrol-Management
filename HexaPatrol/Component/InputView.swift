@@ -29,13 +29,17 @@ struct InputView: View {
                     SecureField(placeholder, text: $text)
                         .font(.system(size: 15))
                         .foregroundColor(Color(.label))
-                        .textContentType(.newPassword)
+                        .textContentType(.password)
+                        .autocorrectionDisabled()
+                        .autocapitalization(.none)
                         .disableAutocorrection(true)
                 } else {
                     TextField(placeholder, text: $text)
                         .font(.system(size: 15))
                         .foregroundColor(Color(.label))
                         .textContentType(.none)
+                        .autocorrectionDisabled()
+                        .autocapitalization(.none)
                         .disableAutocorrection(true)
                 }
 

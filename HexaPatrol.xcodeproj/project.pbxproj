@@ -6,7 +6,34 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C31EFC802D2BCEC30064F22A /* PlantModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7D2D2BCEC30064F22A /* PlantModel+CoreDataProperties.swift */; };
+		C31EFC812D2BCEC30064F22A /* ParameterModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7A2D2BCEC30064F22A /* ParameterModel+CoreDataClass.swift */; };
+		C31EFC822D2BCEC30064F22A /* EquipmentTypeModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC782D2BCEC30064F22A /* EquipmentTypeModel+CoreDataClass.swift */; };
+		C31EFC832D2BCEC30064F22A /* EquipmentGroupModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC762D2BCEC30064F22A /* EquipmentGroupModel+CoreDataClass.swift */; };
+		C31EFC842D2BCEC30064F22A /* EquipmentGroupModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC772D2BCEC30064F22A /* EquipmentGroupModel+CoreDataProperties.swift */; };
+		C31EFC852D2BCEC30064F22A /* EquipmentTypeModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC792D2BCEC30064F22A /* EquipmentTypeModel+CoreDataProperties.swift */; };
+		C31EFC862D2BCEC30064F22A /* AreaModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC742D2BCEC30064F22A /* AreaModel+CoreDataClass.swift */; };
+		C31EFC872D2BCEC30064F22A /* ParameterModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7B2D2BCEC30064F22A /* ParameterModel+CoreDataProperties.swift */; };
+		C31EFC882D2BCEC30064F22A /* PlantModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7C2D2BCEC30064F22A /* PlantModel+CoreDataClass.swift */; };
+		C31EFC892D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC752D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift */; };
+		C31EFC8A2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7E2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift */; };
+		C31EFC8B2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7F2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		C31EFC742D2BCEC30064F22A /* AreaModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AreaModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C31EFC752D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AreaModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C31EFC762D2BCEC30064F22A /* EquipmentGroupModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EquipmentGroupModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C31EFC772D2BCEC30064F22A /* EquipmentGroupModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EquipmentGroupModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C31EFC782D2BCEC30064F22A /* EquipmentTypeModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EquipmentTypeModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C31EFC792D2BCEC30064F22A /* EquipmentTypeModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EquipmentTypeModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C31EFC7A2D2BCEC30064F22A /* ParameterModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParameterModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C31EFC7B2D2BCEC30064F22A /* ParameterModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ParameterModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C31EFC7C2D2BCEC30064F22A /* PlantModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PlantModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C31EFC7D2D2BCEC30064F22A /* PlantModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PlantModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C31EFC7E2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TagnoModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C31EFC7F2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TagnoModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		C360DDD62D2177BF00E9D6AA /* HexaPatrol.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HexaPatrol.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +59,18 @@
 		C360DDCD2D2177BF00E9D6AA = {
 			isa = PBXGroup;
 			children = (
+				C31EFC742D2BCEC30064F22A /* AreaModel+CoreDataClass.swift */,
+				C31EFC752D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift */,
+				C31EFC762D2BCEC30064F22A /* EquipmentGroupModel+CoreDataClass.swift */,
+				C31EFC772D2BCEC30064F22A /* EquipmentGroupModel+CoreDataProperties.swift */,
+				C31EFC782D2BCEC30064F22A /* EquipmentTypeModel+CoreDataClass.swift */,
+				C31EFC792D2BCEC30064F22A /* EquipmentTypeModel+CoreDataProperties.swift */,
+				C31EFC7A2D2BCEC30064F22A /* ParameterModel+CoreDataClass.swift */,
+				C31EFC7B2D2BCEC30064F22A /* ParameterModel+CoreDataProperties.swift */,
+				C31EFC7C2D2BCEC30064F22A /* PlantModel+CoreDataClass.swift */,
+				C31EFC7D2D2BCEC30064F22A /* PlantModel+CoreDataProperties.swift */,
+				C31EFC7E2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift */,
+				C31EFC7F2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift */,
 				C360DDD82D2177BF00E9D6AA /* HexaPatrol */,
 				C360DDD72D2177BF00E9D6AA /* Products */,
 			);
@@ -119,6 +158,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C31EFC802D2BCEC30064F22A /* PlantModel+CoreDataProperties.swift in Sources */,
+				C31EFC812D2BCEC30064F22A /* ParameterModel+CoreDataClass.swift in Sources */,
+				C31EFC822D2BCEC30064F22A /* EquipmentTypeModel+CoreDataClass.swift in Sources */,
+				C31EFC832D2BCEC30064F22A /* EquipmentGroupModel+CoreDataClass.swift in Sources */,
+				C31EFC842D2BCEC30064F22A /* EquipmentGroupModel+CoreDataProperties.swift in Sources */,
+				C31EFC852D2BCEC30064F22A /* EquipmentTypeModel+CoreDataProperties.swift in Sources */,
+				C31EFC862D2BCEC30064F22A /* AreaModel+CoreDataClass.swift in Sources */,
+				C31EFC872D2BCEC30064F22A /* ParameterModel+CoreDataProperties.swift in Sources */,
+				C31EFC882D2BCEC30064F22A /* PlantModel+CoreDataClass.swift in Sources */,
+				C31EFC892D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift in Sources */,
+				C31EFC8A2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift in Sources */,
+				C31EFC8B2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

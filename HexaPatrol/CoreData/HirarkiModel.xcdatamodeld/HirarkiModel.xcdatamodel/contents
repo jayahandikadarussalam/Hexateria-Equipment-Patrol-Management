@@ -1,2 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier=""/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="AreaModel" representedClassName="AreaModel" syncable="YES">
+        <attribute name="areaID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="areaName" optional="YES" attributeType="String"/>
+        <relationship name="areaFromPlant" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PlantModel" inverseName="plantToArea" inverseEntity="PlantModel"/>
+        <relationship name="areaToGroup" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="EquipmentGroupModel" inverseName="areaFromGroup" inverseEntity="EquipmentGroupModel"/>
+    </entity>
+    <entity name="EquipmentGroupModel" representedClassName="EquipmentGroupModel" syncable="YES">
+        <attribute name="equipmentGroupID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="equipmentGroupName" optional="YES" attributeType="String"/>
+        <relationship name="areaFromGroup" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="AreaModel" inverseName="areaToGroup" inverseEntity="AreaModel"/>
+        <relationship name="groupToType" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="EquipmentTypeModel" inverseName="typeFromGroup" inverseEntity="EquipmentTypeModel"/>
+    </entity>
+    <entity name="EquipmentTypeModel" representedClassName="EquipmentTypeModel" syncable="YES">
+        <attribute name="equipmentTypeID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="equipmentTypeName" optional="YES" attributeType="String"/>
+        <relationship name="typeFromGroup" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="EquipmentGroupModel" inverseName="groupToType" inverseEntity="EquipmentGroupModel"/>
+        <relationship name="typeToTagno" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TagnoModel" inverseName="tagnoFromType" inverseEntity="TagnoModel"/>
+    </entity>
+    <entity name="ParameterModel" representedClassName="ParameterModel" syncable="YES">
+        <attribute name="booleanOption" optional="YES" attributeType="String"/>
+        <attribute name="correctOption" optional="YES" attributeType="String"/>
+        <attribute name="formType" optional="YES" attributeType="String"/>
+        <attribute name="gap" optional="YES" attributeType="String"/>
+        <attribute name="mandatory" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="max" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="min" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="ordering" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="parameterID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="parameterName" optional="YES" attributeType="String"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+        <relationship name="paramFromTagno" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TagnoModel" inverseName="tagnoToParam" inverseEntity="TagnoModel"/>
+    </entity>
+    <entity name="PlantModel" representedClassName="PlantModel" syncable="YES">
+        <attribute name="plantID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="plantName" optional="YES" attributeType="String"/>
+        <relationship name="plantToArea" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="AreaModel" inverseName="areaFromPlant" inverseEntity="AreaModel"/>
+    </entity>
+    <entity name="TagnoModel" representedClassName="TagnoModel" syncable="YES">
+        <attribute name="tagnoID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="tagnoName" optional="YES" attributeType="String"/>
+        <relationship name="tagnoFromType" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="EquipmentTypeModel" inverseName="typeToTagno" inverseEntity="EquipmentTypeModel"/>
+        <relationship name="tagnoToParam" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ParameterModel" inverseName="paramFromTagno" inverseEntity="ParameterModel"/>
+    </entity>
+</model>

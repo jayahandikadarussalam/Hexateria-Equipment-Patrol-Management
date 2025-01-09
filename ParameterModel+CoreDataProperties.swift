@@ -22,7 +22,7 @@ extension ParameterModel {
     @NSManaged public var formType: String?
     @NSManaged public var booleanOption: String?
     @NSManaged public var correctOption: String?
-    @NSManaged public var gap: Int64
+    @NSManaged public var gap: String?
     @NSManaged public var mandatory: Bool
     @NSManaged public var min: Int64
     @NSManaged public var max: Int64
