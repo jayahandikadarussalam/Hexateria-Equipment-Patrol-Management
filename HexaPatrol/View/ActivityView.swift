@@ -109,15 +109,6 @@ struct ActivityView: View {
         @State private var expandedSections: Set<Int> = []
         
         var body: some View {
-//            List {
-//                ForEach(equipmentType.tagno, id: \.tagnoID) { tag in
-//                    Section(header: Text("Tagno: \(tag.tagnoName)").font(.subheadline)) {
-//                        ForEach(tag.parameter, id: \.parameterID) { param in
-//                            ParameterRow(parameter: param)
-//                        }
-//                    }
-//                }
-//            }
             List {
                 ForEach(equipmentType.tagno, id: \.tagnoID) { tag in
                     Section(header: sectionHeader(for: tag)) {
@@ -146,12 +137,10 @@ struct ActivityView: View {
             }
         }
         
-        
         private func sectionHeader(for tag: Tagno) -> some View {
             HStack {
                 Text("Tagno: \(tag.tagnoName)")
                     .font(.subheadline)
-//                    .foregroundColor(.blue)
                 Spacer()
                 Button(action: {
                     toggleSection(tagID: tag.tagnoID)
