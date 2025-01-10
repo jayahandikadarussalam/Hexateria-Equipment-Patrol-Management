@@ -5,6 +5,8 @@
 //  Created by Jaya Handika Darussalam on 29/12/24.
 //
 
+import Foundation
+
 // MARK: - LoginResponse
 struct LoginResponse: Codable {
     let success: Bool
@@ -36,6 +38,15 @@ struct User: Codable, Identifiable {
     let sequentialChecklist: Bool
     let conditionalSync: Bool
     let multiplePatrol: Bool
+    
+    var initials: String {
+        let formatter = PersonNameComponentsFormatter()
+        if let components = formatter.personNameComponents(from: name) {
+            formatter.style = .abbreviated
+            return formatter.string(from: components)
+        }
+        return ""
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, name, email, department, role

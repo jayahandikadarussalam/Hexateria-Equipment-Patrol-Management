@@ -14,16 +14,16 @@ struct UserInfoView: View {
     let user: User?
     
     let plantData: PlantData = PlantData(plantID: 1, plantName: "Plant 1", areaData: [
-            AreaData(areaID: 1, areaName: "Area 1", equipmentGroup: [
-                EquipmentGroup(equipmentGroupID: 1, equipmentGroupName: "Group 1", equipmentType: [
-                    EquipmentType(equipmentTypeID: 1, equipmentTypeName: "Type 1", tagno: [
-                        Tagno(tagnoID: 1, tagnoName: "Tag 1", parameter: [
-                            Parameter(parameterID: 1, parameterName: "Parameter 1", unit: "Unit", formType: "Type", booleanOption: "True", correctOption: "Correct", gap: "Gap", mandatory: .bool(true), min: nil, max: nil, ordering: 1)
-                        ])
+        AreaData(areaID: 1, areaName: "Area 1", equipmentGroup: [
+            EquipmentGroup(equipmentGroupID: 1, equipmentGroupName: "Group 1", equipmentType: [
+                EquipmentType(equipmentTypeID: 1, equipmentTypeName: "Type 1", tagno: [
+                    Tagno(tagnoID: 1, tagnoName: "Tag 1", parameter: [
+                        Parameter(parameterID: 1, parameterName: "Parameter 1", unit: "Unit", formType: "Type", booleanOption: "True", correctOption: "Correct", gap: "Gap", mandatory: .bool(true), min: nil, max: nil, ordering: 1)
                     ])
                 ])
             ])
         ])
+    ])
     
     var body: some View {
         TabView {

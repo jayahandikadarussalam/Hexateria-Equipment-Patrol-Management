@@ -13,6 +13,7 @@ struct ActivityView: View {
     @State private var isRefreshing = false
     @State private var refreshSuccess = false
     @Namespace private var topID
+    let user: User?
     
     var filteredPlantData: [PlantData] {
         if searchText.isEmpty {
@@ -40,7 +41,6 @@ struct ActivityView: View {
                                 VStack(alignment: .leading) {
                                     Text("Area: \(area.areaName)")
                                         .font(.headline)
-                                        .navigationTitle("Activity")
                                     ForEach(area.equipmentGroup, id: \.equipmentGroupID) { group in
                                         Text("Equipment Group: \(group.equipmentGroupName)")
                                             .font(.subheadline)
@@ -69,6 +69,8 @@ struct ActivityView: View {
                     Button("OK", role: .cancel) { }
                 }
             }
+            .navigationTitle("Activity")
+            .navigationBarBackButtonHidden(user?.role == "operator")
         }
     }
     
@@ -135,6 +137,7 @@ struct ActivityView: View {
                     }
                 }
             }
+            .navigationBarBackButtonHidden((UserDefaults.standard.string(forKey: "role") ?? "") == "Operator")
         }
         
         private func sectionHeader(for tag: Tagno) -> some View {
@@ -217,6 +220,9 @@ struct ActivityView: View {
                     if !parameter.booleanOption.isEmpty {
                         Text("Boolean Options: \(parameter.booleanOption)")
                     }
+                    if !parameter.correctOption.isEmpty {
+                        Text("Correct Options: \(parameter.correctOption)")
+                    }
                     if !parameter.gap.isEmpty {
                         Text("Gap: \(parameter.gap)")
                     }
@@ -229,7 +235,8 @@ struct ActivityView: View {
     }
 
 #Preview {
-    ActivityView(viewModel: MockAuthViewModel())
+    ActivityView(viewModel: MockAuthViewModel(), user: nil)
+        .environmentObject(AuthViewModel())
         .environmentObject(MockAuthViewModel())
 }
 

@@ -112,7 +112,7 @@ struct HomeTabView: View {
                     
                     TransactionItem(
                         name: "Jajang Aldebaran",
-                        date: "Dec 31 • 14:21pm",
+                        date: "2024 Dec 31 • 14:21pm",
                         amount: "All Area",
                         type: "Finish",
                         isOutgoing: true,
@@ -121,7 +121,7 @@ struct HomeTabView: View {
                     
                     TransactionItem(
                         name: "Ujang Kenzo",
-                        date: "Dec 30 • 7:30am",
+                        date: "2024 Dec 30 • 7:30am",
                         amount: "All Area",
                         type: "Finish",
                         isOutgoing: true,
@@ -130,7 +130,7 @@ struct HomeTabView: View {
                     
                     TransactionItem(
                         name: "Rey Saepudin",
-                        date: "Dec 30 • 9:01am",
+                        date: "2024 Dec 30 • 9:01am",
                         amount: "All Area",
                         type: "Finish",
                         isOutgoing: true,
@@ -139,16 +139,16 @@ struct HomeTabView: View {
                     
                     TransactionItem(
                         name: "Asep Zavian",
-                        date: "Dec 31 • 8:45pm",
+                        date: "2024 Dec 31 • 8:45pm",
                         amount: "Area CA-2",
                         type: "Progress",
                         isOutgoing: false,
-                        progress: 0.43
+                        progress: 0.40
                     )
                     
                     TransactionItem(
                         name: "Aceng Kaivan",
-                        date: "Dec 31 • 22:01pm",
+                        date: "2024 Dec 31 • 22:01pm",
                         amount: "Area CA-1",
                         type: "Progress",
                         isOutgoing: false,
@@ -167,7 +167,12 @@ struct HomeTabView: View {
             .background(Color(UIColor { traitCollection in
                 traitCollection.userInterfaceStyle == .dark ? UIColor.black : UIColor.systemGray6 }))
             .navigationDestination(isPresented: $navigateToActivity) {
-                ActivityView(viewModel: viewModel)
+                if user?.role == "Operator" {
+                    ActivityView(viewModel: viewModel, user: user)
+                        .navigationBarBackButtonHidden(true) // Hilangkan tombol kembali untuk operator
+                } else {
+                    ActivityView(viewModel: viewModel, user: user) // Role lain tetap bisa kembali
+                }
             }
         }
     }
@@ -217,7 +222,6 @@ struct TransactionItem: View {
 
                 HStack {
                     ProgressView(value: progress)
-//                        .tint(isOutgoing ? .green : .red)
                         .tint(progressColor)
                         .scaleEffect(x: 1, y: 1.5, anchor: .center)
                     Text(progressPercentage)
