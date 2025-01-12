@@ -88,9 +88,6 @@ struct HomeTabView: View {
                                     .fill(.green)
                                 )
                         }
-                        
-//                        Spacer()
-                        
                     }
                     .padding(.horizontal, 16)
                 }
@@ -198,7 +195,7 @@ struct TransactionItem: View {
         case 0.8...1.0:
             return .green
         default:
-            return .gray // Untuk nilai di luar rentang, meskipun seharusnya tidak terjadi
+            return .gray
         }
     }
     

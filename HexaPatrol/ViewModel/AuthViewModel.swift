@@ -411,7 +411,7 @@ class AuthViewModel: ObservableObject {
                                         paramEntity.gap = param.gap
                                         paramEntity.min = Int64(param.min!)
                                         paramEntity.max = Int64(param.max!)
-                                        paramEntity.ordering = Int64(param.ordering)
+                                        paramEntity.ordering = Int64(param.ordering!)
                                     } else {
                                         paramEntity = ParameterModel(context: self.context)
                                         paramEntity.parameterID = Int64(param.parameterID)
@@ -423,7 +423,7 @@ class AuthViewModel: ObservableObject {
                                         paramEntity.gap = param.gap
                                         paramEntity.min = Int64(param.min!)
                                         paramEntity.max = Int64(param.max!)
-                                        paramEntity.ordering = Int64(param.ordering)
+                                        paramEntity.ordering = Int64(param.ordering!)
                                         // Set bidirectional relationship
                                         paramEntity.paramFromTagno = tagnoEntity
                                         tagnoEntity.addToTagnoToParam(paramEntity)
@@ -500,7 +500,7 @@ class AuthViewModel: ObservableObject {
                                 }
                                 
                                 // Sort parameters by ordering
-                                parameters.sort { $0.ordering < $1.ordering }
+                                parameters.sort { $0.ordering! < $1.ordering! }
                                 
                                 let tagno = Tagno(
                                     tagnoID: Int(tagnoEntity.tagnoID),

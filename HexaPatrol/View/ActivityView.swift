@@ -207,6 +207,9 @@ struct ActivityView: View {
                 }
                 
                 Group {
+                    if let ordering = parameter.ordering {
+                            Text("Sort: \(ordering)")
+                        }
                     if !parameter.unit.isEmpty {
                         Text("Unit: \(parameter.unit)")
                     }

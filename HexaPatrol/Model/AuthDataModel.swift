@@ -149,7 +149,7 @@ struct Parameter: Codable, Identifiable {
     let mandatory: Mandatory
     let min: Int?
     let max: Int?
-    let ordering: Int
+    let ordering: Int?
 
     var id: Int { parameterID }
 
