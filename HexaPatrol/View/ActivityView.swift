@@ -10,14 +10,11 @@ import SwiftUI
 struct ActivityView: View {
     @ObservedObject var viewModel: AuthViewModel
     @State private var searchText = ""
-    @State private var debouncedSearchText = ""
     @State private var isRefreshing = false
     @State private var showToast = false
     @Namespace private var topID
     
     let user: User?
-    
-    @State private var searchDebounceTimer: Timer?
     
     var filteredPlantData: [PlantData] {
             if searchText.isEmpty {

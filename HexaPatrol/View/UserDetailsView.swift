@@ -10,6 +10,7 @@ import SwiftUI
 struct UserDetailsView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     let user: User?
+    @State private var showSignOutConfirmation = false
 
     var body: some View {
         VStack {
@@ -54,12 +55,10 @@ struct UserDetailsView: View {
                             Text("1.0.0 (1)")
                                 .font(.system(size: 14))
                         }
-//                        Link("Terms of Service", destination: URL(string: "url-of-the-link")!)
-//                            .font(.system(size: 14))
                     }
                     
                     Button {
-                        viewModel.logout()
+                        showSignOutConfirmation = true
                     } label: {
                         Text("Sign out")
                             .fontWeight(.semibold)
@@ -67,6 +66,14 @@ struct UserDetailsView: View {
                     }
                 }
                 .listStyle(InsetGroupedListStyle())
+                .alert("Sign Out", isPresented: $showSignOutConfirmation) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Sign Out", role: .destructive) {
+                        viewModel.logout()
+                    }
+                } message: {
+                    Text("Are you sure you want to sign out?")
+                }
             } else {
                 Text("No user data available.")
                     .padding()
@@ -88,7 +95,6 @@ struct ConfigurationPatrol: View {
         }
     }
 }
-
 
 #Preview {
     UserDetailsView(user: User(id: 1, name: "John Doe", email: "asdf@gmail.com", department: "Security", role: "Admin", isActive: true, sequentialChecklist: true, conditionalSync: false, multiplePatrol: true))
