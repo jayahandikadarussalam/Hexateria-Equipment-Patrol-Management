@@ -152,6 +152,7 @@ struct AreaDetailView: View {
 // MARK: - Equipment Type Detail View
 struct EquipmentTypeDetailView: View {
     let equipmentType: EquipmentType
+    @Environment(\.colorScheme) var colorScheme
     @State private var expandedSections: Set<Int> = []
     @State private var completionPercentage: Double = 0
     
@@ -186,6 +187,10 @@ struct EquipmentTypeDetailView: View {
             }
         }
         .navigationBarBackButtonHidden(UserDefaults.standard.string(forKey: "role") == "Operator")
+        .background(
+            (colorScheme == .dark ? Color(.systemGray6) : Color.white)
+                .edgesIgnoringSafeArea(.all)
+        )
     }
     
     private func updateEquipmentCompletion() {
@@ -261,6 +266,7 @@ struct TagnoListView: View {
                     if expandedSections.contains(tag.tagnoID) {
                         ForEach(tag.parameter, id: \.parameterID) { param in
                             ParameterRow(parameter: param, onParameterChange: onCompletionChanged)
+                                .padding(.top, 20)
                         }
                     }
                 }
@@ -271,6 +277,7 @@ struct TagnoListView: View {
 
 struct ExpandCollapseMenu: View {
     let equipmentType: EquipmentType
+    @Environment(\.colorScheme) var colorScheme
     @Binding var expandedSections: Set<Int>
     
     var body: some View {
@@ -308,41 +315,69 @@ struct TagnoSectionHeader: View {
         }
     }
     
+    private var groupBoxBackgroundColor: Color {
+        colorScheme == .dark ? Color(.systemGray6) : .white
+    }
+    
     var body: some View {
-        GroupBox(label: Text("Tagnos: \(tagno.tagnoName)").font(.subheadline)) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Completion: \(Int(completionPercentage * 100))%")
-                        .font(.footnote)
+        ScrollView {
+            VStack() {
+                GroupBox(label: Text("Tagnos: \(tagno.tagnoName)")
+                    .foregroundColor(.primary)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                ) {
                     Spacer()
-                    Button(action: { toggleSection() }) {
-                        Image(systemName: expandedSections.contains(tagno.tagnoID) ? "chevron.down" : "chevron.right")
-                            .foregroundColor(.blue)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Completion: \(Int(completionPercentage * 100))%")
+                                .font(.subheadline)
+                                .padding(.top, 15)
+                            Spacer()
+                            Button(action: { toggleSection() }) {
+                                Image(systemName: expandedSections.contains(tagno.tagnoID) ? "chevron.down" : "chevron.right")
+                                    .foregroundColor(.blue)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        
+                        ProgressView(value: completionPercentage)
+                            .progressViewStyle(LinearProgressViewStyle(tint: progressColor))
+                            .frame(height: 6)
+                            .padding(.top, 4)
+                        
+                        if expandedSections.contains(tagno.tagnoID) {
+                            EquipmentStatusView()
+                                .padding(.vertical, 4)
+                        }
                     }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                
-                ProgressView(value: completionPercentage)
-                    .progressViewStyle(LinearProgressViewStyle(tint: progressColor))
-                    .frame(height: 6)
                     .padding(.top, 4)
-                
-                if expandedSections.contains(tagno.tagnoID) {
-                    EquipmentStatusView()
-                        .padding(.vertical, 4)
                 }
             }
-            .padding(.top, 4)
         }
-        .frame(maxWidth: .infinity)
-        .background(
-            colorScheme == .dark ? Color(.systemGray6) : Color.white
-        )
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.gray.opacity(0.2))
-        )
+        .groupBoxStyle(CardGroupBox())
+        .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: -30, trailing: 0))
+    }
+    
+    struct CardGroupBox: GroupBoxStyle {
+        @Environment(\.colorScheme) var colorScheme
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.content
+                .frame(maxWidth: .infinity)
+                .padding()
+                .cornerRadius(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(colorScheme == .dark ? Color(.systemGray6) : Color.white)
+                )
+                .overlay(
+                    configuration.label
+                        .padding(.top, 15)
+                        .padding(.leading, 15) // Padding di kiri
+                        .padding(.trailing, 15), // Padding di kanan
+                    alignment: .topLeading
+                )
+        }
     }
     
     private func toggleSection() {
@@ -374,18 +409,18 @@ struct EquipmentStatusView: View {
 
             HStack(spacing: 20) {
                 RadioButton(
-                    id: "Yes",
-                    label: "Yes",
-                    isSelected: equipmentStatus == "Yes",
-                    action: { equipmentStatus = "Yes" }
+                    id: "On",
+                    label: "On",
+                    isSelected: equipmentStatus == "On",
+                    action: { equipmentStatus = "On" }
                 )
 
                 RadioButton(
-                    id: "No",
-                    label: "No",
-                    isSelected: equipmentStatus == "No",
+                    id: "Off",
+                    label: "Off",
+                    isSelected: equipmentStatus == "Off",
                     action: {
-                        equipmentStatus = "No"
+                        equipmentStatus = "Off"
                         showCamera = true
                     }
                 )
@@ -395,7 +430,7 @@ struct EquipmentStatusView: View {
         .padding()
         .frame(maxWidth: .infinity)
         .background(
-            colorScheme == .dark ? Color(.systemGray6) : Color(.systemBackground)
+            colorScheme == .dark ? Color(.systemBackground) : Color(.systemBackground)
         )
         .cornerRadius(8)
         .overlay(
