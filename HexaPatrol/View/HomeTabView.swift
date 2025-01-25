@@ -51,7 +51,7 @@ struct HomeTabView: View {
                         } label: {
                             Text("NO")
                                 .padding()
-                                .foregroundColor(.pink)
+                                .foregroundColor(.secondary)
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity, maxHeight: 40)
                                 .background(
@@ -59,7 +59,7 @@ struct HomeTabView: View {
                                         cornerRadius: 8,
                                         style: .continuous
                                     )
-                                    .fill(Color.pink.opacity(0.2))
+                                    .fill(Color.gray.opacity(0.2))
                                 )
                         }
                         .sheet(isPresented: $cameraViewModel.isShowingCamera) {
@@ -99,7 +99,7 @@ struct HomeTabView: View {
                 // MARK: Recent Transactions
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        Text("Recent transaction")
+                        Text("Recent patrol")
                             .font(.system(size: 16, weight: .medium))
                         Spacer()
                         Text("see all")

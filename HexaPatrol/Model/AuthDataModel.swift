@@ -138,7 +138,7 @@ struct Tagno: Codable, Identifiable {
 }
 
 // MARK: - Parameter
-struct Parameter: Codable, Identifiable {
+struct Parameter: Codable, Identifiable, Equatable {
     let parameterID: Int
     let parameterName: String
     let unit: String
@@ -165,7 +165,7 @@ struct Parameter: Codable, Identifiable {
     }
 }
 
-enum Mandatory: Codable {
+enum Mandatory: Codable, Equatable {
     case int(Int)
     case bool(Bool)
 

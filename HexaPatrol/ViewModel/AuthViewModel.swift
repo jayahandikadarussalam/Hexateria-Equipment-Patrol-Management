@@ -54,11 +54,12 @@ class AuthViewModel: ObservableObject {
         self.token = UserDefaults.standard.string(forKey: "userToken")
         self.isLoggedIn = self.token != nil
         loadUserData()
+
         Task {
             do {
                 self.plants = try await loadHierarchyData()
 //                self.plants = try await HierarchyDataPersistence.shared.loadHierarchyData()
-                print("Hierarchy data loaded on app startup.")
+//                print("Hierarchy data loaded on app startup.")
             } catch {
                 print("Error loading hierarchy data on app startup: \(error)")
             }
@@ -142,10 +143,13 @@ class AuthViewModel: ObservableObject {
                     self.password = ""
                     UserDefaults.standard.removeObject(forKey: "userToken")
                     UserDefaults.standard.removeObject(forKey: "userData")
-//                    UserDefaults.standard.removeObject(forKey: "plantData")
                     UserDefaults.standard.removeObject(forKey: "email")
                     UserDefaults.standard.removeObject(forKey: "password")
                     UserDefaults.standard.removeObject(forKey: "savedHirarkiData")
+                    UserDefaults.standard.removeObject(forKey: "loadHirarkiData")
+                    
+                    // Hapus semua data hierarki dari Core Data
+                    await clearCoreData()
                 }
             } catch {
                 print("Error during logout: \(error.localizedDescription)")
@@ -550,6 +554,28 @@ class AuthViewModel: ObservableObject {
         }
         
         return plants
+    }
+    
+    // Fungsi untuk menghapus semua hirarki data dari Core Data
+    private func clearCoreData() async {
+        let context = PersistenceController.shared.context
+        
+        await context.perform {
+            let entityNames = ["PlantModel", "AreaModel", "EquipmentGroupModel", "EquipmentTypeModel", "TagnoModel", "ParameterModel"]
+            
+            for entityName in entityNames {
+                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+                let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+                
+                do {
+                    try context.execute(deleteRequest)
+                    try context.save()
+                    print("Successfully cleared data for entity: \(entityName)")
+                } catch {
+                    print("Failed to delete data for entity \(entityName): \(error)")
+                }
+            }
+        }
     }
 
 }

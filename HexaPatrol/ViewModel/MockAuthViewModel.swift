@@ -5,6 +5,9 @@
 //  Created by Jaya Handika Darussalam on 03/01/25.
 //
 
+// MockAuthViewModel.swift
+import SwiftUI
+
 class MockAuthViewModel: AuthViewModel {
     override init() {
         super.init()
@@ -55,4 +58,19 @@ class MockAuthViewModel: AuthViewModel {
             )
         ]
     }
+}
+
+// In ActivityView.swift, update the Preview section:
+struct ActivityView_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockViewModel = MockAuthViewModel()
+        return ActivityView(viewModel: mockViewModel, user: nil)
+    }
+}
+
+// Or use the #Preview macro (iOS 17+):
+#Preview {
+    let mockViewModel = MockAuthViewModel()
+    return ActivityView(viewModel: mockViewModel, user: nil)
+        .environmentObject(mockViewModel) // Add this if needed
 }
