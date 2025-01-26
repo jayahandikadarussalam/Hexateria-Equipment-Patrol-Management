@@ -127,14 +127,51 @@ struct ToastView: View {
 }
 
 // MARK: - Area Detail View
+//struct AreaDetailView: View {
+//    @State private var searchText = ""
+//    let area: AreaData
+//    
+//    var body: some View {
+//        List {
+//            ForEach(area.equipmentGroup, id: \.equipmentGroupID) { group in
+//                Section(header: Text("Equipment Group: \(group.equipmentGroupName)").font(.subheadline)) {
+//                    ForEach(group.equipmentType, id: \.equipmentTypeID) { type in
+//                        NavigationLink(destination: EquipmentTypeDetailView(equipmentType: type)) {
+//                            Text(type.equipmentTypeName)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+//        .navigationTitle("Area \(area.areaName)")
+//    }
+//}
+
 struct AreaDetailView: View {
+    @State private var searchText = ""
     let area: AreaData
-    
+
+    var filteredEquipmentGroups: [EquipmentGroup] {
+        if searchText.isEmpty {
+            return area.equipmentGroup
+        } else {
+            return area.equipmentGroup.filter { group in
+                group.equipmentGroupName.localizedCaseInsensitiveContains(searchText) ||
+                group.equipmentType.contains { type in
+                    type.equipmentTypeName.localizedCaseInsensitiveContains(searchText)
+                }
+            }
+        }
+    }
+
     var body: some View {
         List {
-            ForEach(area.equipmentGroup, id: \.equipmentGroupID) { group in
+            ForEach(filteredEquipmentGroups, id: \.equipmentGroupID) { group in
                 Section(header: Text("Equipment Group: \(group.equipmentGroupName)").font(.subheadline)) {
-                    ForEach(group.equipmentType, id: \.equipmentTypeID) { type in
+                    ForEach(group.equipmentType.filter { type in
+                        searchText.isEmpty || type.equipmentTypeName.localizedCaseInsensitiveContains(searchText)
+                    }, id: \.equipmentTypeID) { type in
                         NavigationLink(destination: EquipmentTypeDetailView(equipmentType: type)) {
                             Text(type.equipmentTypeName)
                         }
@@ -142,16 +179,115 @@ struct AreaDetailView: View {
                 }
             }
         }
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         .navigationTitle("Area \(area.areaName)")
     }
 }
 
 // MARK: - Equipment Type Detail View
+//struct EquipmentTypeDetailView: View {
+//    let equipmentType: EquipmentType
+//    @Environment(\.colorScheme) var colorScheme
+//    @State private var expandedSections: Set<Int> = []
+//    @State private var completionPercentage: Double = 0
+//    @State private var searchText = ""
+//    
+//    var body: some View {
+//        VStack(alignment: .leading, spacing: 8) {
+//            Text("Equipment Completion: \(Int(completionPercentage * 100))%")
+//                .font(.headline)
+//                .padding(.horizontal)
+//            
+//            ProgressView(value: completionPercentage)
+//                .progressViewStyle(LinearProgressViewStyle(tint: equipmentProgressBarColor))
+//                .frame(height: 10)
+//                .padding(.horizontal)
+//            
+//            TagnoListView(
+//                equipmentType: equipmentType,
+//                expandedSections: $expandedSections,
+//                onCompletionChanged: { updateEquipmentCompletion() }
+//            )
+//        }
+//        .padding(.vertical)
+//        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+//        .navigationTitle(equipmentType.equipmentTypeName)
+//        .onAppear {
+//            updateEquipmentCompletion()
+//        }
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                ExpandCollapseMenu(
+//                    equipmentType: equipmentType,
+//                    expandedSections: $expandedSections
+//                )
+//            }
+//        }
+//        .navigationBarBackButtonHidden(UserDefaults.standard.string(forKey: "role") == "Operator")
+//        .background(
+//            (colorScheme == .dark ? Color(.systemGray6) : Color.white)
+//                .edgesIgnoringSafeArea(.all)
+//        )
+//    }
+//    
+//    private func updateEquipmentCompletion() {
+//        completionPercentage = calculateEquipmentCompletionPercentage()
+//    }
+//    
+//    private func calculateEquipmentCompletionPercentage() -> Double {
+//        guard !equipmentType.tagno.isEmpty else { return 0 }
+//        
+//        let totalCompletionPercentage = equipmentType.tagno.reduce(0.0) { partialResult, tagno in
+//            partialResult + tagnoCompletionPercentage(for: tagno)
+//        }
+//        
+//        return totalCompletionPercentage / Double(equipmentType.tagno.count)
+//    }
+//    
+//    private func tagnoCompletionPercentage(for tagno: Tagno) -> Double {
+//        let totalParameters = tagno.parameter.count
+//        let completedParameters = tagno.parameter.filter { isParameterFilled($0) }.count
+//        guard totalParameters > 0 else { return 0 }
+//        return Double(completedParameters) / Double(totalParameters)
+//    }
+//    
+//    private var equipmentProgressBarColor: Color {
+//        switch completionPercentage {
+//        case 1.0:
+//            return .green
+//        case 0.5...:
+//            return .orange
+//        default:
+//            return .red
+//        }
+//    }
+//    
+//    private func isParameterFilled(_ parameter: Parameter) -> Bool {
+//        let inputValue = UserDefaults.standard.string(forKey: "parameter_\(parameter.parameterID)") ?? ""
+//        return !inputValue.isEmpty
+//    }
+//}
+
 struct EquipmentTypeDetailView: View {
     let equipmentType: EquipmentType
     @Environment(\.colorScheme) var colorScheme
     @State private var expandedSections: Set<Int> = []
     @State private var completionPercentage: Double = 0
+    @State private var searchText = ""
+    
+    // Filtered Tagno
+    var filteredTagno: [Tagno] {
+        if searchText.isEmpty {
+            return equipmentType.tagno
+        } else {
+            return equipmentType.tagno.filter { tagno in
+                tagno.tagnoName.localizedCaseInsensitiveContains(searchText) ||
+                tagno.parameter.contains { parameter in
+                    parameter.parameterName.localizedCaseInsensitiveContains(searchText)
+                }
+            }
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -164,13 +300,19 @@ struct EquipmentTypeDetailView: View {
                 .frame(height: 10)
                 .padding(.horizontal)
             
+            // Pass filtered data to TagnoListView
             TagnoListView(
-                equipmentType: equipmentType,
+                equipmentType: EquipmentType(
+                    equipmentTypeID: equipmentType.equipmentTypeID, // Ambil dari objek equipmentType
+                    equipmentTypeName: equipmentType.equipmentTypeName,
+                    tagno: filteredTagno
+                ),
                 expandedSections: $expandedSections,
                 onCompletionChanged: { updateEquipmentCompletion() }
             )
         }
         .padding(.vertical)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         .navigationTitle(equipmentType.equipmentTypeName)
         .onAppear {
             updateEquipmentCompletion()
