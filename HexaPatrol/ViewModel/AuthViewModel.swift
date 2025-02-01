@@ -9,10 +9,21 @@ import Foundation
 import Combine
 import CoreData
 
-// Define the base URL for your API
+import Foundation
+
 struct BaseURL {
-    static let url = URL(string: "http://127.0.0.1:8000/api/")!
     
+    #if targetEnvironment(simulator)
+    static let url = URL(string: "http://127.0.0.1:8000/api/")!
+    #else
+    //Hexateria
+    //static let url = URL(string: "http://192.168.18.87:8000/api/")!
+    //Hexateria 5G
+    static let url = URL(string: "http://192.168.18.88:8000/api/")!
+    //Office
+//    static let url = URL(string: "http://192.168.18.31:8000/api/")!
+    #endif
+
     // Define the specific endpoints
     static var login: URL { return url.appendingPathComponent("login") }
     static var logout: URL { return url.appendingPathComponent("logout") }
@@ -32,6 +43,7 @@ class AuthViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var password: String = ""
     @Published var isLoggedIn: Bool = false
+    @Published var locationViewModel = LocationViewModel()
     private var cancellables = Set<AnyCancellable>()
     private let context = PersistenceController.shared.container.viewContext
     
@@ -64,6 +76,10 @@ class AuthViewModel: ObservableObject {
                 print("Error loading hierarchy data on app startup: \(error)")
             }
         }
+        
+        if isLoggedIn {
+            locationViewModel = LocationViewModel() // Fetch location on login
+        }
     }
 
     //MARK: Login
@@ -88,6 +104,10 @@ class AuthViewModel: ObservableObject {
                 return
             }
             
+            if isLoggedIn {
+                locationViewModel = LocationViewModel() // Fetch location on login
+            }
+    
             if httpResponse.statusCode == 200 {
                 clearErrorMessage()
                 let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)

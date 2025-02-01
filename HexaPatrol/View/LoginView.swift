@@ -80,8 +80,8 @@ struct LoginView: View {
                                 .multilineTextAlignment(.center)
                         }
                     }
-                } // End VStack
-            } // End NavigationStack
+                }
+            }
             .padding()
         }
     }

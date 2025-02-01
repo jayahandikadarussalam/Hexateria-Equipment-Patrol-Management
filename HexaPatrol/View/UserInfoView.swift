@@ -30,7 +30,7 @@ struct UserInfoView: View {
             // Home Tab
             HomeTabView( user: user)
                 .tabItem {
-                    Image(systemName: "house.fill")
+                    Image(systemName: "house")
                     Text("Home")
                 }
             
@@ -50,14 +50,13 @@ struct UserInfoView: View {
                 }
                 .navigationTitle("History")
                 .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-                // Add .searchable here
             }
             .tabItem {
                 Image(systemName: "clock.fill")
                 Text("History")
             }
 
-            // Me Tab - Directly show UserDetailsView
+            //MARK: User Details Tab
             NavigationStack {
                 UserDetailsView(user: user)
                     .navigationTitle("Me")
@@ -67,7 +66,12 @@ struct UserInfoView: View {
                 Text("Me")
             }
         }
-        .background(.background.shadow(.drop(color: .primary.opacity(0.5), radius: 5)))
+        .onAppear {
+            let tabBarAppearance = UITabBarAppearance()
+            tabBarAppearance.configureWithDefaultBackground()
+            UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+            UITabBar.appearance().standardAppearance = tabBarAppearance
+        }
     }
 }
 

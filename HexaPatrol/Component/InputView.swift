@@ -27,7 +27,7 @@ struct InputView: View {
             HStack {
                 if isSecureField && !showPassword {
                     SecureField(placeholder, text: $text)
-                        .font(.system(size: 15))
+                        .font(.footnote)
                         .foregroundColor(Color(.label))
                         .textContentType(.password)
                         .autocorrectionDisabled()
@@ -35,7 +35,7 @@ struct InputView: View {
                         .disableAutocorrection(true)
                 } else {
                     TextField(placeholder, text: $text)
-                        .font(.system(size: 15))
+                        .font(.footnote)
                         .foregroundColor(Color(.label))
                         .textContentType(.none)
                         .autocorrectionDisabled()

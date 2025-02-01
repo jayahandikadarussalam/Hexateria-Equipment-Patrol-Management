@@ -17,17 +17,17 @@ struct ActivityView: View {
     let user: User?
     
     var filteredPlantData: [PlantData] {
-            if searchText.isEmpty {
-                return viewModel.plants
-            } else {
-                return viewModel.plants.filter { plant in
-                    plant.plantName.localizedCaseInsensitiveContains(searchText) ||
-                    plant.areaData.contains { area in
-                        area.areaName.localizedCaseInsensitiveContains(searchText)
-                    }
+        if searchText.isEmpty {
+            return viewModel.plants
+        } else {
+            return viewModel.plants.filter { plant in
+                plant.plantName.localizedCaseInsensitiveContains(searchText) ||
+                plant.areaData.contains { area in
+                    area.areaName.localizedCaseInsensitiveContains(searchText)
                 }
             }
         }
+    }
     
     var body: some View {
         NavigationStack {
@@ -127,27 +127,6 @@ struct ToastView: View {
 }
 
 // MARK: - Area Detail View
-//struct AreaDetailView: View {
-//    @State private var searchText = ""
-//    let area: AreaData
-//    
-//    var body: some View {
-//        List {
-//            ForEach(area.equipmentGroup, id: \.equipmentGroupID) { group in
-//                Section(header: Text("Equipment Group: \(group.equipmentGroupName)").font(.subheadline)) {
-//                    ForEach(group.equipmentType, id: \.equipmentTypeID) { type in
-//                        NavigationLink(destination: EquipmentTypeDetailView(equipmentType: type)) {
-//                            Text(type.equipmentTypeName)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-//        .navigationTitle("Area \(area.areaName)")
-//    }
-//}
-
 struct AreaDetailView: View {
     @State private var searchText = ""
     let area: AreaData
@@ -185,89 +164,6 @@ struct AreaDetailView: View {
 }
 
 // MARK: - Equipment Type Detail View
-//struct EquipmentTypeDetailView: View {
-//    let equipmentType: EquipmentType
-//    @Environment(\.colorScheme) var colorScheme
-//    @State private var expandedSections: Set<Int> = []
-//    @State private var completionPercentage: Double = 0
-//    @State private var searchText = ""
-//    
-//    var body: some View {
-//        VStack(alignment: .leading, spacing: 8) {
-//            Text("Equipment Completion: \(Int(completionPercentage * 100))%")
-//                .font(.headline)
-//                .padding(.horizontal)
-//            
-//            ProgressView(value: completionPercentage)
-//                .progressViewStyle(LinearProgressViewStyle(tint: equipmentProgressBarColor))
-//                .frame(height: 10)
-//                .padding(.horizontal)
-//            
-//            TagnoListView(
-//                equipmentType: equipmentType,
-//                expandedSections: $expandedSections,
-//                onCompletionChanged: { updateEquipmentCompletion() }
-//            )
-//        }
-//        .padding(.vertical)
-//        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-//        .navigationTitle(equipmentType.equipmentTypeName)
-//        .onAppear {
-//            updateEquipmentCompletion()
-//        }
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                ExpandCollapseMenu(
-//                    equipmentType: equipmentType,
-//                    expandedSections: $expandedSections
-//                )
-//            }
-//        }
-//        .navigationBarBackButtonHidden(UserDefaults.standard.string(forKey: "role") == "Operator")
-//        .background(
-//            (colorScheme == .dark ? Color(.systemGray6) : Color.white)
-//                .edgesIgnoringSafeArea(.all)
-//        )
-//    }
-//    
-//    private func updateEquipmentCompletion() {
-//        completionPercentage = calculateEquipmentCompletionPercentage()
-//    }
-//    
-//    private func calculateEquipmentCompletionPercentage() -> Double {
-//        guard !equipmentType.tagno.isEmpty else { return 0 }
-//        
-//        let totalCompletionPercentage = equipmentType.tagno.reduce(0.0) { partialResult, tagno in
-//            partialResult + tagnoCompletionPercentage(for: tagno)
-//        }
-//        
-//        return totalCompletionPercentage / Double(equipmentType.tagno.count)
-//    }
-//    
-//    private func tagnoCompletionPercentage(for tagno: Tagno) -> Double {
-//        let totalParameters = tagno.parameter.count
-//        let completedParameters = tagno.parameter.filter { isParameterFilled($0) }.count
-//        guard totalParameters > 0 else { return 0 }
-//        return Double(completedParameters) / Double(totalParameters)
-//    }
-//    
-//    private var equipmentProgressBarColor: Color {
-//        switch completionPercentage {
-//        case 1.0:
-//            return .green
-//        case 0.5...:
-//            return .orange
-//        default:
-//            return .red
-//        }
-//    }
-//    
-//    private func isParameterFilled(_ parameter: Parameter) -> Bool {
-//        let inputValue = UserDefaults.standard.string(forKey: "parameter_\(parameter.parameterID)") ?? ""
-//        return !inputValue.isEmpty
-//    }
-//}
-
 struct EquipmentTypeDetailView: View {
     let equipmentType: EquipmentType
     @Environment(\.colorScheme) var colorScheme
@@ -303,7 +199,7 @@ struct EquipmentTypeDetailView: View {
             // Pass filtered data to TagnoListView
             TagnoListView(
                 equipmentType: EquipmentType(
-                    equipmentTypeID: equipmentType.equipmentTypeID, // Ambil dari objek equipmentType
+                    equipmentTypeID: equipmentType.equipmentTypeID,
                     equipmentTypeName: equipmentType.equipmentTypeName,
                     tagno: filteredTagno
                 ),
@@ -330,6 +226,7 @@ struct EquipmentTypeDetailView: View {
             (colorScheme == .dark ? Color(.systemGray6) : Color.white)
                 .edgesIgnoringSafeArea(.all)
         )
+        .edgesIgnoringSafeArea(.bottom)
     }
     
     private func updateEquipmentCompletion() {
@@ -460,7 +357,7 @@ struct TagnoSectionHeader: View {
     
     var body: some View {
         ScrollView {
-            VStack() {
+            LazyVStack(spacing: 0) {
                 GroupBox(label: Text("Tagnos: \(tagno.tagnoName)")
                     .foregroundColor(.primary)
                     .font(.subheadline)
@@ -493,7 +390,7 @@ struct TagnoSectionHeader: View {
                     .padding(.top, 4)
                 }
             }
-        }
+        } //End ScrollView
         .groupBoxStyle(CardGroupBox())
         .listRowInsets(EdgeInsets(top: 20, leading: 0, bottom: -30, trailing: 0))
     }
@@ -535,7 +432,7 @@ struct TagnoSectionHeader: View {
 }
 
 struct EquipmentStatusView: View {
-    @State private var equipmentStatus = "Yes"
+    @State private var equipmentStatus = "On"
     @State private var showCamera = false
     @Environment(\.colorScheme) var colorScheme
 
@@ -551,7 +448,9 @@ struct EquipmentStatusView: View {
                     id: "On",
                     label: "On",
                     isSelected: equipmentStatus == "On",
-                    action: { equipmentStatus = "On" }
+                    action: {
+                        equipmentStatus = "On"
+                    }
                 )
 
                 RadioButton(
@@ -779,6 +678,6 @@ struct ParameterInputField: View {
 }
 
 #Preview {
-    ActivityView(viewModel: MockAuthViewModel(), user: nil)
+    ActivityView(viewModel: AuthViewModel(), user: nil)
         .environmentObject(AuthViewModel())
 }
