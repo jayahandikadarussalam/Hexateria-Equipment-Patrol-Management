@@ -16,6 +16,7 @@ struct HomeTabView: View {
     @StateObject private var locationViewModel = LocationViewModel()
     @State private var navigateToActivity = false
     @State private var currentDate = Date()
+    @State private var selectedFilter: String = "Minggu Ini"
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     let user: User?
@@ -42,6 +43,17 @@ struct HomeTabView: View {
         }
     }
     
+    var filteredData: [StepCount] {
+        switch selectedFilter {
+        case "Current Week":
+            return currentWeek
+        case "Last Week":
+            return currentWeek.map { StepCount(day: $0.day, steps: Int(Double($0.steps) * 0.8)) }
+        default:
+            return currentWeek
+        }
+    }
+    
     static func format(date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, dd MMM yyyy HH:mm:ss"
@@ -55,125 +67,14 @@ struct HomeTabView: View {
     private var backgroundColor: Color {
         (colorScheme == .dark ? Color(.systemGray6) : Color.white)
     }
+
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Location and date section
-//                    VStack(spacing: 4) {
-//                        HStack {
-//                            Image(systemName: "location.fill")
-//                                .foregroundColor(.blue)
-//                            if locationViewModel.locationName == "Getting location..." {
-//                                HStack(spacing: 4) {
-//                                    Text("Getting location")
-//                                        .font(.footnote)
-//                                        .foregroundColor(.gray)
-//                                    ProgressView()
-//                                        .scaleEffect(0.7)
-//                                }
-//                            } else {
-//                                Text(locationViewModel.locationName)
-//                                    .font(.footnote)
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                        
-//                        if let lat = locationViewModel.latitude, let lon = locationViewModel.longitude {
-//                            Text("Lon: \(lon), Lat: \(lat) ")
-//                                .font(.footnote)
-//                                .foregroundColor(.gray)
-//                        }
-//                    
-//                        TimelineView(.periodic(from: Date(), by: 0.1)) { context in
-//                            Text(Self.format(date: context.date))
-//                                .font(.footnote)
-//                                .foregroundStyle(Color.secondary)
-//                        }
-//                    }
-//                    .padding(.top, 8)
-
-                    // MARK: Patrol Transactions
-//                    VStack(spacing: 24) {
-//                        VStack(spacing: 8) {
-//                            // Location and date section
-//                            Section {
-//                                HStack {
-//                                    Text(user?.initials ?? "??")
-//                                        .font(.title)
-//                                        .fontWeight(.semibold)
-//                                        .foregroundColor(.white)
-//                                        .frame(width: 50, height: 50)
-//                                        .background(Color(.systemGray3))
-//                                        .clipShape(Circle(), style: FillStyle())
-//                                    VStack(alignment: .leading, spacing: 4) {
-//                                        Text(user?.name ?? "Shadow Monarch")
-//                                            .fontWeight(.semibold)
-//                                            .padding(.top, 4)
-//                                        Text(user?.email ?? "monarch@gmail.com")
-//                                            .font(.footnote)
-//                                            .foregroundColor(.gray)
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        
-//                        // MARK: Activity Buttons
-//                        HStack {
-//                            Button {
-//                                cameraViewModel.showCamera()
-//                            } label: {
-//                                Text("NO")
-//                                    .padding()
-//                                    .foregroundColor(.primary)
-//                                    .fontWeight(.semibold)
-//                                    .frame(maxWidth: .infinity, maxHeight: 40)
-//                                    .background(
-//                                        RoundedRectangle(
-//                                            cornerRadius: 8,
-//                                            style: .continuous
-//                                        )
-//                                        .stroke(lineWidth: 2)
-//                                        .fill(Color.gray.opacity(0.2))
-//                                    )
-//                            }
-//                            
-//                            Spacer()
-//                            
-//                            Rectangle()
-//                                .fill(Color.gray.opacity(0.3))
-//                                .frame(width: 1, height: 30)
-//                            
-//                            Button {
-//                                navigateToActivity = true
-//                            } label: {
-//                                Text("YES")
-//                                    .padding()
-//                                    .foregroundColor(.white)
-//                                    .fontWeight(.semibold)
-//                                    .frame(maxWidth: .infinity, maxHeight: 40)
-//                                    .background(
-//                                        RoundedRectangle(
-//                                            cornerRadius: 8,
-//                                            style: .continuous
-//                                        )
-//                                        .fill(.green)
-//                                    )
-//                            }
-//                        }
-//                        .padding(.horizontal, 16)
-//                    } //ends
-//                    .padding(.vertical, 24)
-//                    .background(
-//                        (colorScheme == .dark ? Color(.systemGray6) : Color.white)
-////                            .edgesIgnoringSafeArea(.all)
-//                    )
-//                    .cornerRadius(16)
-                    
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 8) {
-                            // Location and date section
                             VStack{
                                 HStack(alignment: .top, spacing: 8) {
                                     Image(systemName: "person.badge.shield.checkmark")
@@ -186,8 +87,9 @@ struct HomeTabView: View {
                                         .offset(y: 10)
                                     
                                     VStack(alignment: .leading) {
-                                        Text("\(user?.department ?? "ITG") - \(user?.role ?? "Role") - \(user?.name ?? "Username")")
+                                        Text("\(user?.name ?? "Username") - \(user?.role ?? "Role") - \(user?.department ?? "ITG")")
                                             .fontWeight(.semibold)
+                                            .foregroundColor(.secondary)
                                             .font(.subheadline)
                                         
                                         if locationViewModel.locationName == "Getting location..." {
@@ -237,7 +139,7 @@ struct HomeTabView: View {
                                     .padding()
                                     .foregroundColor(.primary)
                                     .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity, maxHeight: 40)
+                                    .frame(maxWidth: .infinity, maxHeight: 35)
                                     .background(
                                         RoundedRectangle(
                                             cornerRadius: 8,
@@ -259,9 +161,9 @@ struct HomeTabView: View {
                             } label: {
                                 Text("Yes")
                                     .padding()
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color(UIColor.systemBackground))
                                     .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity, maxHeight: 40)
+                                    .frame(maxWidth: .infinity, maxHeight: 35)
                                     .background(
                                         RoundedRectangle(
                                             cornerRadius: 8,
@@ -279,43 +181,49 @@ struct HomeTabView: View {
                     
                     //MARK: Patrol Statistics
                     VStack(spacing: 24) {
-                        VStack(alignment: .leading, spacing: 4) {
+                        HStack {
                             Text("\(departmentName) Patrol Bar Chart")
                                 .font(.system(size: 16, weight: .medium))
-                                .padding()
-                                Chart(currentWeek) {
-                                    let stepThousands = Double($0.steps) / 1000.00
-                                    BarMark(
-                                        x: .value("Week Day", $0.weekday, unit: .day),
-                                        y: .value("Step Count", $0.steps)
-                                    )
-                                    .foregroundStyle(Color.green.gradient)
-                                    .cornerRadius(6)
-                                    .annotation(position: .overlay, alignment: .topLeading, spacing: 3) {
-                                        Text("\(stepThousands, specifier: "%.1F")")
-                                            .font(.footnote)
-                                            .foregroundColor(Color.black)
-                                    }
-                                }
-                                .background(
-                                    (colorScheme == .dark ? Color(.systemGray6) : Color.white)
-//                                        .edgesIgnoringSafeArea(.all)
-                                )
-                                .chartYAxis(.hidden)
-                                .chartXAxis {
-                                    AxisMarks (values: .stride (by: .day)) { value in
-                                        AxisValueLabel(format: .dateTime.weekday(),
-                                                       centered: true)
-                                    }
-                                }
-                            .frame(height: 180)
-                            
+
                             Spacer()
+
+                            Picker("", selection: $selectedFilter) {
+                                Text("Current Week").tag("Current Week")
+                                Text("Last Week").tag("Last Week")
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 180)
                         }
+                        .padding(.horizontal)
+
+                        Chart(filteredData) {
+                            let stepThousands = Double($0.steps) / 1000.00
+                            BarMark(
+                                x: .value("Week Day", $0.weekday, unit: .day),
+                                y: .value("Step Count", $0.steps)
+                            )
+                            .foregroundStyle(Color.green.gradient)
+                            .cornerRadius(6)
+                            .annotation(position: .overlay, alignment: .topLeading, spacing: 3) {
+                                Text("\(stepThousands, specifier: "%.1F")k")
+                                    .font(.footnote)
+                                    .foregroundColor(Color.black)
+                            }
+                        }
+                        .chartYAxis(.hidden)
+                        .chartXAxis {
+                            AxisMarks(values: .stride(by: .day)) { value in
+                                AxisValueLabel(format: .dateTime.weekday(), centered: true)
+                            }
+                        }
+                        .frame(height: 180)
+
+                        Spacer()
                     }
                     .padding(.vertical, 24)
                     .background(backgroundColor)
                     .cornerRadius(16)
+                    
                     
                     // MARK: Recent Transactions
                     VStack(alignment: .leading, spacing: 16) {
