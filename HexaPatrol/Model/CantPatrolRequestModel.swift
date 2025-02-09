@@ -5,50 +5,60 @@
 //  Created by Jaya Handika Darussalam on 04/02/25.
 //
 
+import Foundation
 
-// MARK: - Models
-struct CantPatrolRequest: Codable {
-    let user: UserRequest
-    let photo: PhotoRequest
-    let reasonTransactions: ReasonTransactionsRequest
-    
+struct CantPatrolResponse: Codable {
+    let message: String
+    let data: CantPatrolData
+}
+
+struct CantPatrolData: Codable {
+    let user: UserResponse
+    let photo: PhotoResponse
+    let reasonTransactions: ReasonTransactionsResponse
+
     enum CodingKeys: String, CodingKey {
-        case user
-        case photo
+        case user, photo
         case reasonTransactions = "reason_transactions"
     }
 }
 
-struct UserRequest: Codable {
-    let username: String
-    let department: String
-    let role: String
-    let date: String
-}
-
-struct PhotoRequest: Codable {
-    let imageName: String
-    let imagePath: String
-    let mimeType: String
-    let size: String
+struct UserResponse: Codable {
+    let id: Int
+    let name, username, department, role: String
+    let date, status, updatedAt, createdAt: String
     
     enum CodingKeys: String, CodingKey {
-        case imageName = "image_name"
-        case imagePath = "image_path"
-        case mimeType = "mime_type"
-        case size
+        case id, name, username, department, role, date, status
+        case updatedAt = "updated_at"
+        case createdAt = "created_at"
     }
 }
 
-struct ReasonTransactionsRequest: Codable {
-    let status: String
-    let reason: String
-    let location: String
-    let date: String
+struct PhotoResponse: Codable {
+    let id, userId: Int
+    let imageName: String
+    let size: String
+    let updatedAt, createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case imageName = "image_name"
+        case size, updatedAt = "updated_at"
+        case createdAt = "created_at"
+    }
 }
 
-// MARK: - Response Model
-struct CantPatrolResponse: Codable {
-    let message: String
-    let data: CantPatrolRequest
+struct ReasonTransactionsResponse: Codable {
+    let id, userId: Int
+    let status, reason, location, lon, lat, date, updatedAt, createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case status, reason, location, lon, lat, date
+        case updatedAt = "updated_at"
+        case createdAt = "created_at"
+    }
 }

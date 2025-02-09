@@ -15,10 +15,8 @@ struct HomeTabView: View {
     @EnvironmentObject var cameraViewModel: CameraViewModel
     @StateObject private var locationViewModel = LocationViewModel()
     @State private var navigateToActivity = false
-    @State private var currentDate = Date()
-    @State private var selectedFilter: String = "Minggu Ini"
+    @State private var selectedFilter: String = "Current Week"
     
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     let user: User?
     let currentWeek: [StepCount] = [
         StepCount(day: "20220717", steps: 4200),
@@ -68,7 +66,6 @@ struct HomeTabView: View {
         (colorScheme == .dark ? Color(.systemGray6) : Color.white)
     }
 
-    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -77,12 +74,12 @@ struct HomeTabView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             VStack{
                                 HStack(alignment: .top, spacing: 8) {
-                                    Image(systemName: "person.badge.shield.checkmark")
+                                    Image(systemName: "person.crop.circle.badge.checkmark")
                                         .font(.title)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
                                         .frame(width: 40, height: 40)
-                                        .background(Color.green.gradient)
+                                        .background(Color.accentColor)
                                         .clipShape(Circle())
                                         .offset(y: 10)
                                     
@@ -182,7 +179,7 @@ struct HomeTabView: View {
                     //MARK: Patrol Statistics
                     VStack(spacing: 24) {
                         HStack {
-                            Text("\(departmentName) Patrol Bar Chart")
+                            Text("Patrol Bar Chart")
                                 .font(.system(size: 16, weight: .medium))
 
                             Spacer()
@@ -240,17 +237,17 @@ struct HomeTabView: View {
                             TransactionItem(
                                 name: "Jajang Aldebaran",
                                 date: "2024 Dec 31 • 14:21pm",
-                                amount: "All Area",
-                                type: "Finish",
+                                amount: "Scada Room",
+                                status: "Can't Patrol",
                                 isOutgoing: true,
-                                progress: 1.0
+                                progress: 0.0
                             )
                             
                             TransactionItem(
                                 name: "Ujang Kenzo",
                                 date: "2024 Dec 30 • 7:30am",
                                 amount: "All Area",
-                                type: "Finish",
+                                status: "Finish",
                                 isOutgoing: true,
                                 progress: 1.0
                             )
@@ -259,7 +256,7 @@ struct HomeTabView: View {
                                 name: "Rey Saepudin",
                                 date: "2024 Dec 30 • 9:01am",
                                 amount: "All Area",
-                                type: "Finish",
+                                status: "Finish",
                                 isOutgoing: true,
                                 progress: 1.0
                             )
@@ -268,7 +265,7 @@ struct HomeTabView: View {
                                 name: "Asep Zavian",
                                 date: "2024 Dec 31 • 8:45pm",
                                 amount: "Area CA-2",
-                                type: "Progress",
+                                status: "Progress",
                                 isOutgoing: false,
                                 progress: 0.40
                             )
@@ -277,7 +274,7 @@ struct HomeTabView: View {
                                 name: "Aceng Kaivan",
                                 date: "2024 Dec 31 • 22:01pm",
                                 amount: "Area CA-1",
-                                type: "Progress",
+                                status: "Progress",
                                 isOutgoing: false,
                                 progress: 0.75
                             )
@@ -292,7 +289,7 @@ struct HomeTabView: View {
             }
             .background(Color(UIColor.systemGroupedBackground))
             .navigationDestination(isPresented: $navigateToActivity) {
-                if user?.role == "Operator" {
+                if user?.role == "Operators" {
                     ActivityView(viewModel: viewModel, user: user)
                         .navigationBarBackButtonHidden(true)
                 } else {
@@ -301,6 +298,18 @@ struct HomeTabView: View {
             }
             .sheet(isPresented: $cameraViewModel.isShowingCamera) {
                 ImagePicker(viewModel: cameraViewModel)
+            }
+            
+//            .sheet(isPresented: $cameraViewModel.showReasonForm) {
+//                ReasonFormView(user: user)
+//                    .environmentObject(cameraViewModel)
+//            }
+            
+            .sheet(isPresented: $cameraViewModel.showReasonForm) {
+                if cameraViewModel.selectedImage != nil {
+                    ReasonFormView(user: user)
+                        .environmentObject(cameraViewModel)
+                }
             }
         }
     }
@@ -323,18 +332,23 @@ struct TransactionItem: View {
     let name: String
     let date: String
     let amount: String
-    let type: String
+    let status: String
     let isOutgoing: Bool
     let progress: Double
+    
+    @State private var showToast: Bool = false
+    @State private var toastMessage: String = ""
+    @State private var toastColor: Color = .green
+    
     var progressPercentage: String {
         String(format: "%.0f%%", progress * 100) // Konversi ke persen
     }
     
-    init(name: String, date: String, amount: String, type: String, isOutgoing: Bool, progress: Double) {
+    init(name: String, date: String, amount: String, status: String, isOutgoing: Bool, progress: Double) {
         self.name = name
         self.date = date
         self.amount = amount
-        self.type = type
+        self.status = status
         self.isOutgoing = isOutgoing
         self.progress = progress
         
@@ -342,6 +356,9 @@ struct TransactionItem: View {
     }
     
     var progressColor: Color {
+        if status == "Can't Patrol" {
+            return .gray
+        }
         switch progress {
         case 0..<0.5:
             return .red
@@ -354,14 +371,69 @@ struct TransactionItem: View {
         }
     }
     
+//    private func syncToBackend() {
+//        print("Syncing \(name) to backend...")
+//        // Implementasikan request ke backend di sini
+//    }
+    
+    private func syncToBackend() {
+        let success = Bool.random() // Simulasi keberhasilan atau kegagalan
+        
+        if success {
+            toastMessage = "Sync to backend successfully!"
+            toastColor = .green
+        } else {
+            toastMessage = "Failed to sync to backend!"
+            toastColor = .red
+        }
+        
+        showToast = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showToast = false
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 12) {
             Circle()
                 .fill(progressColor.opacity(0.1))
                 .frame(width: 40, height: 40)
+//                .overlay(
+//                    Image(systemName: isOutgoing ? "arrow.up" : "arrow.down")
+//                        .foregroundColor(progressColor)
+//                )
                 .overlay(
-                    Image(systemName: isOutgoing ? "arrow.up" : "arrow.down")
-                        .foregroundColor(progressColor)
+//                    Group {
+//                        if progress == 1.0 && status == "Finish" {
+//                            Button(action: {
+//                                syncToBackend()
+//                            }) {
+//                                Image(systemName: "arrow.up")
+//                                    .foregroundColor(progressColor)
+//                            }
+//                        } else {
+//                            Image(systemName: isOutgoing ? "arrow.up" : "arrow.down")
+//                                .foregroundColor(progressColor)
+//                        }
+//                    }
+                    Group {
+                        switch status {
+                        case "Finish" where progress == 1.0:
+                            Button(action: { syncToBackend() }) {
+                                Image(systemName: "arrow.up")
+                                    .foregroundColor(progressColor)
+                            }
+                        case "Can't Patrol" where progress == 0:
+                            Button(action: { syncToBackend() }) {
+                                Image(systemName: "exclamationmark.triangle")
+                                    .foregroundColor(.red)
+                            }
+                        default:
+                            Image(systemName: isOutgoing ? "arrow.up" : "arrow.down")
+                                .foregroundColor(progressColor)
+                        }
+                    }
                 )
             
             VStack(alignment: .leading, spacing: 4) {
@@ -386,10 +458,19 @@ struct TransactionItem: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text(amount)
                     .font(.system(size: 14))
-                Text(type)
+                Text(status)
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
             }
+        }
+        if showToast {
+            Text(toastMessage)
+                .foregroundColor(.white)
+                .padding()
+                .background(toastColor)
+                .cornerRadius(8)
+                .transition(.opacity)
+                .animation(.easeInOut, value: showToast)
         }
     }
 } //End Transcation

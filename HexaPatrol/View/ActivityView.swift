@@ -308,6 +308,7 @@ struct TagnoListView: View {
                 }
             }
         }
+        .padding(.bottom, 60)
     }
 }
 
@@ -388,6 +389,9 @@ struct TagnoSectionHeader: View {
                         }
                     }
                     .padding(.top, 4)
+                }
+                .onTapGesture {
+                    toggleSection()
                 }
             }
         } //End ScrollView

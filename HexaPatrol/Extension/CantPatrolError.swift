@@ -1,3 +1,11 @@
+//
+//  CantPatrolError.swift
+//  HexaPatrol
+//
+//  Created by Jaya Handika Darussalam on 06/02/25.
+//
+
+
 import Foundation
 
 enum CantPatrolError: LocalizedError {
