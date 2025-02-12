@@ -18,7 +18,7 @@ struct MainView: View {
                 LoginView()
             }
         }
-//        .animation(.easeInOut, value: viewModel.isLoggedIn)
+        .animation(.easeInOut, value: viewModel.isLoggedIn)
 //        .onAppear {
 //            print("MainView appeared, isLoggedIn: \(viewModel.isLoggedIn)")
 //        }
@@ -28,4 +28,5 @@ struct MainView: View {
 #Preview {
     MainView()
         .environmentObject(AuthViewModel())
+        .environmentObject(CameraViewModel())
 }

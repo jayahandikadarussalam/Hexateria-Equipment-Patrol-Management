@@ -11,7 +11,13 @@ struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var showAlert = false
+    @State private var showURLSettings = false
     @EnvironmentObject var viewModel: AuthViewModel
+    @Environment(\.colorScheme) var colorScheme
+    
+    private var buttonColor: Color {
+        (colorScheme == .dark ? Color(.white) : Color.black)
+    }
     
     var body: some View {
             NavigationStack {
@@ -55,23 +61,60 @@ struct LoginView: View {
                         }
                         .padding(.bottom, 10)
                         
-                        Button {
-                            Task {
-                                await viewModel.login(email: viewModel.email, password: viewModel.password)
+                        HStack(spacing: 10) {
+                            // Gear Button
+                            Button {
+                                showURLSettings = true
+                            } label: {
+                                Image(systemName: "gear")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 32, height: 32)
+                                    .foregroundColor(buttonColor)
+                                    .frame(width: 48, height: 48)
+                                    .background(Color(.systemMint))
+                                    .cornerRadius(8)
                             }
-                        } label: {
-                            HStack {
-                                Text("SIGN IN")
-                                    .fontWeight(.semibold)
-                                Image(systemName: "arrow.right")
+                            
+                            // Sign In Button
+                            Button {
+                                Task {
+                                    await viewModel.login(email: viewModel.email, password: viewModel.password)
+                                }
+                            } label: {
+                                HStack {
+                                    Text("SIGN IN")
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(buttonColor)
+                                    Image(systemName: "arrow.right")
+                                        .foregroundColor(buttonColor)
+                                }
+                                .foregroundColor(Color.white)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(Color(.systemMint))
+                                .cornerRadius(8)
                             }
-                            .foregroundColor(Color.white)
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(Color(.systemMint))
-                            .cornerRadius(8)
+                            .disabled(!formIsValid)
+                            .opacity(formIsValid ? 1.0 : 0.5)
                         }
-                        .disabled(!formIsValid)
-                        .opacity(formIsValid ? 1.0 : 0.5)
+                        
+//                        Button {
+//                            Task {
+//                                await viewModel.login(email: viewModel.email, password: viewModel.password)
+//                            }
+//                        } label: {
+//                            HStack {
+//                                Text("SIGN IN")
+//                                    .fontWeight(.semibold)
+//                                Image(systemName: "arrow.right")
+//                            }
+//                            .foregroundColor(Color.white)
+//                            .frame(maxWidth: .infinity, minHeight: 48)
+//                            .background(Color(.systemMint))
+//                            .cornerRadius(8)
+//                        }
+//                        .disabled(!formIsValid)
+//                        .opacity(formIsValid ? 1.0 : 0.5)
                         
                         if !viewModel.errorMessage.isEmpty {
                             Text(viewModel.errorMessage)
@@ -83,6 +126,9 @@ struct LoginView: View {
                 }
             }
             .padding()
+            .sheet(isPresented: $showURLSettings) {
+                URLSettingsView()
+            }
         }
     }
 

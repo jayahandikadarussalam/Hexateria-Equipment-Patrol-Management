@@ -1,20 +1,81 @@
+//
+//  URLItemViewModel.swift
+//  HexaPatrol
+//
+//  Created by Jaya Handika Darussalam on 11/02/25.
+//
+
+
 import Foundation
+import Combine
+import SwiftUI
 
 class URLItemViewModel: ObservableObject {
-    @Published var predefinedURLs: [URLItem] = []
+    @AppStorage("BaseURL") private var storedURL: String?
+    @Published var predefinedURLs: [URLItemModel] = []
     @Published var selectedURL: String = BaseURL.url.absoluteString
+    private var cancellables = Set<AnyCancellable>()
     
     init() {
+        self.selectedURL = UserDefaults.standard.string(forKey: "BaseURL") ?? BaseURL.url.absoluteString
         loadURLs()
+        
+        NotificationCenter.default.publisher(for: .baseURLUpdated)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                let newURL = BaseURL.url.absoluteString
+                print("🔄 Notification received: Updating selectedURL to \(newURL)")
+                self.selectedURL = newURL
+                self.storedURL = newURL
+            }
+            .store(in: &cancellables)
+    }
+    
+    
+    // MARK: - URL Validation
+    
+    private func isValidAPIURL(_ urlString: String) -> Bool {
+        guard let url = URL(string: urlString) else { return false }
+        
+        // Check if URL ends with /api/
+        if !urlString.hasSuffix("/api/") {
+            return false
+        }
+        
+        // Validate URL components
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return false
+        }
+        
+        // Must have a host
+        guard let host = components.host else {
+            return false
+        }
+        
+        // Must use http or https
+        guard let scheme = components.scheme,
+              (scheme == "http" || scheme == "https") else {
+            return false
+        }
+        
+        // Check if it's an IP address or localhost
+        let isIPAddress = host.split(separator: ".").count == 4 &&
+                         host.split(separator: ".").allSatisfy { $0.allSatisfy { $0.isNumber } }
+        let isLocalhost = host == "localhost" || host == "127.0.0.1"
+        
+        return isIPAddress || isLocalhost
     }
     
     // MARK: - CRUD Operations
     
     func addURL(name: String, url: String) -> Bool {
-        guard !name.isEmpty, !url.isEmpty else { return false }
-        guard let _ = URL(string: url) else { return false }
+        guard !name.isEmpty else { return false }
         
-        let newItem = URLItem(name: name, url: url)
+        // Validate URL format
+        guard isValidAPIURL(url) else { return false }
+        
+        let newItem = URLItemModel(name: name, url: url)
         predefinedURLs.append(newItem)
         saveURLs()
         return true
@@ -25,28 +86,67 @@ class URLItemViewModel: ObservableObject {
         saveURLs()
     }
     
+//    func updateSelectedURL(_ url: String) -> Bool {
+//        guard isValidAPIURL(url) else { return false }
+//        selectedURL = url
+//        UserDefaults.standard.set(url, forKey: "BaseURL")
+//        
+//        // Instantly update BaseURL
+//        if let newURL = URL(string: url) {
+//            BaseURL.url = newURL
+//        }
+//        return true
+//    }
+    
     func updateSelectedURL(_ url: String) -> Bool {
-        guard let _ = URL(string: url) else { return false }
-        selectedURL = url
-        UserDefaults.standard.set(url, forKey: "BaseURL")
+        print("📝 Starting URL update process for: \(url)")
+        
+        guard isValidAPIURL(url) else {
+            print("❌ Invalid URL format: \(url)")
+            return false
+        }
+        
+        guard let newURL = URL(string: url) else {
+            print("❌ Could not create URL object")
+            return false
+        }
+        
+        // Update storage and cache
+        BaseURL.forceUpdateURL(newURL)
+        
+        // Update view model
+        DispatchQueue.main.async { [weak self] in
+            self?.selectedURL = url
+            self?.storedURL = url
+            print("✅ ViewModel and storage updated to: \(url)")
+        }
+        
+        // Verify updates
+        print("🔍 Verification:")
+        print("BaseURL: \(BaseURL.url.absoluteString)")
+        print("Stored URL: \(storedURL ?? "nil")")
+        print("Selected URL: \(selectedURL)")
+        
         return true
     }
+
+
     
     // MARK: - Data Persistence
     
     private func loadURLs() {
-        // Load default URLs if no saved URLs exist
         if let savedURLs = UserDefaults.standard.data(forKey: "PredefinedURLs"),
-           let decodedURLs = try? JSONDecoder().decode([URLItem].self, from: savedURLs) {
-            predefinedURLs = decodedURLs
+           let decodedURLs = try? JSONDecoder().decode([URLItemModel].self, from: savedURLs) {
+            // Validate all saved URLs
+            predefinedURLs = decodedURLs.filter { isValidAPIURL($0.url) }
         } else {
             // Default URLs
             predefinedURLs = [
-                URLItem(name: "Default", url: "http://192.168.18.96:8000/api/"),
-                URLItem(name: "Hexateria", url: "http://192.168.18.87:8000/api/"),
-                URLItem(name: "Hexateria 5G", url: "http://192.168.18.88:8000/api/"),
-                URLItem(name: "Office APWG2", url: "http://192.168.18.31:8000/api/"),
-                URLItem(name: "Office HOME56", url: "http://192.168.1.37:8000/api/")
+                URLItemModel(name: "Default", url: "http://192.168.18.00:8000/api/"),
+                URLItemModel(name: "Hexateria", url: "http://192.168.18.87:8000/api/"),
+                URLItemModel(name: "Hexateria 5G", url: "http://192.168.18.96:8000/api/"),
+                URLItemModel(name: "Office APWG2", url: "http://192.168.18.31:8000/api/"),
+                URLItemModel(name: "Office HOME56", url: "http://192.168.1.37:8000/api/")
             ]
             saveURLs()
         }

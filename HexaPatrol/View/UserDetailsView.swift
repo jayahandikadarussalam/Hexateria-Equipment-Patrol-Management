@@ -69,7 +69,10 @@ struct UserDetailsView: View {
                 .alert("Sign Out", isPresented: $showSignOutConfirmation) {
                     Button("Cancel", role: .cancel) {}
                     Button("Sign Out", role: .destructive) {
-                        viewModel.logout()
+//                        viewModel.logout()
+                        Task {
+                            await viewModel.logout()
+                        }
                     }
                 } message: {
                     Text("Are you sure you want to sign out?")

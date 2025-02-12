@@ -44,7 +44,10 @@ struct LogoutButton: View {
         CustomButton(
             title: "Sign Out",
             action: {
-                authViewModel.logout()
+//                authViewModel.logout()
+                Task {
+                    await authViewModel.logout()
+                }
             }
         )
     }

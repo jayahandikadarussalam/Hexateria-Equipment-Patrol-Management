@@ -65,6 +65,10 @@ struct HomeTabView: View {
     private var backgroundColor: Color {
         (colorScheme == .dark ? Color(.systemGray6) : Color.white)
     }
+    
+    private var userBadgeColor: Color {
+        (colorScheme == .dark ? Color(.gray) : Color.white)
+    }
 
     var body: some View {
         NavigationStack {
@@ -74,12 +78,12 @@ struct HomeTabView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             VStack{
                                 HStack(alignment: .top, spacing: 8) {
-                                    Image(systemName: "person.crop.circle.badge.checkmark")
+                                    Image(systemName: "person.crop.circle.fill.badge.checkmark")
                                         .font(.title)
                                         .fontWeight(.semibold)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(userBadgeColor)
                                         .frame(width: 40, height: 40)
-                                        .background(Color.accentColor)
+                                        .background(Color(.systemGray4))
                                         .clipShape(Circle())
                                         .offset(y: 10)
                                     
@@ -178,7 +182,7 @@ struct HomeTabView: View {
                     
                     //MARK: Patrol Statistics
                     VStack(spacing: 24) {
-                        HStack {
+                        HStack() {
                             Text("Patrol Bar Chart")
                                 .font(.system(size: 16, weight: .medium))
 
@@ -188,8 +192,8 @@ struct HomeTabView: View {
                                 Text("Current Week").tag("Current Week")
                                 Text("Last Week").tag("Last Week")
                             }
-                            .pickerStyle(.segmented)
-                            .frame(width: 180)
+                            .pickerStyle(.menu)
+//                            .frame(width: 180)
                         }
                         .padding(.horizontal)
 
@@ -287,6 +291,7 @@ struct HomeTabView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
             }
+//            .padding(.bottom, 10)
             .background(Color(UIColor.systemGroupedBackground))
             .navigationDestination(isPresented: $navigateToActivity) {
                 if user?.role == "Operators" {
@@ -299,12 +304,7 @@ struct HomeTabView: View {
             .sheet(isPresented: $cameraViewModel.isShowingCamera) {
                 ImagePicker(viewModel: cameraViewModel)
             }
-            
-//            .sheet(isPresented: $cameraViewModel.showReasonForm) {
-//                ReasonFormView(user: user)
-//                    .environmentObject(cameraViewModel)
-//            }
-            
+
             .sheet(isPresented: $cameraViewModel.showReasonForm) {
                 if cameraViewModel.selectedImage != nil {
                     ReasonFormView(user: user)
@@ -370,12 +370,7 @@ struct TransactionItem: View {
             return .gray
         }
     }
-    
-//    private func syncToBackend() {
-//        print("Syncing \(name) to backend...")
-//        // Implementasikan request ke backend di sini
-//    }
-    
+
     private func syncToBackend() {
         let success = Bool.random() // Simulasi keberhasilan atau kegagalan
         
@@ -387,7 +382,9 @@ struct TransactionItem: View {
             toastColor = .red
         }
         
-        showToast = true
+        withAnimation(.easeInOut) {
+            showToast = true
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             showToast = false
@@ -399,24 +396,7 @@ struct TransactionItem: View {
             Circle()
                 .fill(progressColor.opacity(0.1))
                 .frame(width: 40, height: 40)
-//                .overlay(
-//                    Image(systemName: isOutgoing ? "arrow.up" : "arrow.down")
-//                        .foregroundColor(progressColor)
-//                )
                 .overlay(
-//                    Group {
-//                        if progress == 1.0 && status == "Finish" {
-//                            Button(action: {
-//                                syncToBackend()
-//                            }) {
-//                                Image(systemName: "arrow.up")
-//                                    .foregroundColor(progressColor)
-//                            }
-//                        } else {
-//                            Image(systemName: isOutgoing ? "arrow.up" : "arrow.down")
-//                                .foregroundColor(progressColor)
-//                        }
-//                    }
                     Group {
                         switch status {
                         case "Finish" where progress == 1.0:

@@ -1,61 +1,89 @@
-// URLSettingsView.swift
+//
+//  URLSettingsView.swift
+//  HexaPatrol
+//
+//  Created by Jaya Handika Darussalam on 11/02/25.
+//
+
+import SwiftUI
+
 struct URLSettingsView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var selectedURL: String
-    @State private var customURL: String = ""
+    @StateObject private var viewModel = URLItemViewModel()
+    
     @State private var showAlert = false
     @State private var alertMessage = ""
-    
-    let predefinedURLs = [
-        "http://192.168.18.96:8000/api/",
-        "http://192.168.18.87:8000/api/",
-        "http://192.168.18.88:8000/api/",
-        "http://192.168.18.31:8000/api/",
-        "http://192.168.1.37:8000/api/"
-    ]
-    
-    init() {
-        _selectedURL = State(initialValue: BaseURL.url.absoluteString)
-    }
+    @State private var showAddURLAlert = false
+    @State private var newURLName = ""
+    @State private var newURLAddress = ""
+    @State private var selectedURL: String = ""
+
     
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Predefined URLs")) {
-                    ForEach(predefinedURLs, id: \.self) { url in
-                        HStack {
-                            Text(url)
-                            Spacer()
-                            if selectedURL == url {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
+                    List {
+                        ForEach(viewModel.predefinedURLs) { urlItem in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(urlItem.name)
+                                        .font(.headline)
+                                    Text(urlItem.url)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                                if viewModel.selectedURL == urlItem.url {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if viewModel.updateSelectedURL(urlItem.url) {
+                                    // Selection successful
+                                    alertMessage = "API URL successfully updated!" // Pesan sukses
+                                    showAlert = true
+//                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                                        selectedURL = viewModel.selectedURL // 🔄 Paksa UI update
+//                                    }
+//                                    dismiss()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                                        showAlert = false
+                                    }
+                                } else {
+                                    alertMessage = "Invalid API URL format. URL must end with /api/ and be a valid IP address or localhost."
+                                    showAlert = true
+                                }
+                            }
+                            .alert(isPresented: $showAlert) {
+                                Alert(title: Text("Notification"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                             }
                         }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedURL = url
-                        }
+                        .onDelete(perform: viewModel.deleteURL)
                     }
                 }
                 
-                Section(header: Text("Custom URL")) {
-                    TextField("Enter custom URL", text: $customURL)
-                        .autocapitalization(.none)
-                        .keyboardType(.URL)
-                    
-                    Button("Use Custom URL") {
-                        if let _ = URL(string: customURL) {
-                            selectedURL = customURL
-                        } else {
-                            alertMessage = "Invalid URL format"
-                            showAlert = true
+                Section {
+                    Button(action: {
+                        showAddURLAlert = true
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Add New URL")
                         }
                     }
                 }
                 
                 Section {
-                    Button("Save") {
-                        saveURL()
+                    Button("Save Changes") {
+                        if viewModel.updateSelectedURL(viewModel.selectedURL) {
+                            dismiss()
+                        } else {
+                            alertMessage = "Invalid API URL format. URL must end with /api/ and be a valid IP address or localhost."
+                            showAlert = true
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .foregroundColor(.blue)
@@ -63,10 +91,29 @@ struct URLSettingsView: View {
             }
             .navigationTitle("API URL Settings")
             .navigationBarItems(
-                trailing: Button("Cancel") {
+                trailing: Button("Done") {
                     dismiss()
                 }
             )
+            .alert("Add New URL", isPresented: $showAddURLAlert) {
+                TextField("Name (e.g., Office)", text: $newURLName)
+                TextField("URL (must end with /api/)", text: $newURLAddress)
+                Button("Cancel", role: .cancel) {
+                    newURLName = ""
+                    newURLAddress = ""
+                }
+                Button("Add") {
+                    if viewModel.addURL(name: newURLName, url: newURLAddress) {
+                        newURLName = ""
+                        newURLAddress = ""
+                    } else {
+                        alertMessage = "Invalid API URL format. URL must:\n- End with /api/\n- Use http:// or https://\n- Contain a valid IP address or localhost"
+                        showAlert = true
+                    }
+                }
+            } message: {
+                Text("Please enter the URL details")
+            }
             .alert("Error", isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
@@ -74,18 +121,18 @@ struct URLSettingsView: View {
             }
         }
     }
-    
-    private func saveURL() {
-        // Here you would implement the logic to save the URL
-        // This is a simplified example - you'll need to adapt this
-        // to your actual storage mechanism
-        if let url = URL(string: selectedURL) {
-            // You might want to use UserDefaults or another persistence method
-            UserDefaults.standard.set(url.absoluteString, forKey: "BaseURL")
-            dismiss()
-        } else {
-            alertMessage = "Invalid URL format"
-            showAlert = true
-        }
-    }
 }
+
+#Preview {
+    URLSettingsView()
+}
+
+//#Preview {
+//    let mockViewModel = URLItemViewModel()
+//    // Add custom preview data if needed
+//    mockViewModel.predefinedURLs = [
+//        URLItemModel(name: "Test Server", url: "http://test.example.com/api/"),
+//        URLItemModel(name: "Development", url: "http://dev.example.com/api/")
+//    ]
+//    return URLSettingsView()
+//}
