@@ -113,7 +113,7 @@ struct BaseURL {
 
 // MARK: - AuthViewModel
 @MainActor
-final class AuthViewModel: ObservableObject {
+final class APIService: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var user: User?
     @Published private(set) var plants: [PlantData] = []
@@ -206,6 +206,7 @@ final class AuthViewModel: ObservableObject {
     private func handleLoginResponse(data: Data, response: URLResponse) async throws {
         guard let httpResponse = response as? HTTPURLResponse else {
             loginMessage = "Failed to login. Unknown error occurred."
+            errorMessage = "Failed to login. Unknown error occurred."
             return
         }
         
@@ -554,6 +555,19 @@ final class AuthViewModel: ObservableObject {
     }
     
     // MARK: - Authentication Methods
+//    func login(email: String, password: String) async {
+//        verifyLoginURL()
+//        
+//        do {
+//            let request = try createLoginRequest(email: email, password: password)
+//            let (data, response) = try await session.data(for: request)
+//            
+//            try await handleLoginResponse(data: data, response: response)
+//        } catch {
+//            loginMessage = "An error occurred: \(error.localizedDescription)"
+//        }
+//    }
+    
     func login(email: String, password: String) async {
         verifyLoginURL()
         
@@ -562,52 +576,14 @@ final class AuthViewModel: ObservableObject {
             let (data, response) = try await session.data(for: request)
             
             try await handleLoginResponse(data: data, response: response)
+        } catch let error as URLError {
+            loginMessage = "Failed to connect to server. Please check your internet connection."
+            errorMessage = "Network error: \(error.localizedDescription)"
         } catch {
             loginMessage = "An error occurred: \(error.localizedDescription)"
+            errorMessage = "An unexpected error occurred: \(error.localizedDescription)"
         }
     }
-
-    //MARK: Logout
-//    func logout() {
-//        guard let token = self.token else {
-//            return
-//        }
-//        let logoutURL = BaseURL.logout
-//        var request = URLRequest(url: logoutURL)
-//        request.httpMethod = "POST"
-//        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//        
-//        Task {
-//            do {
-//                let (_, response) = try await session.data(for: request) // Use session property
-//                
-//                guard let httpResponse = response as? HTTPURLResponse else {
-//                    return
-//                }
-//                
-//                if httpResponse.statusCode == 200 {
-//                    self.token = nil
-//                    self.user = nil
-//                    self.plants = []
-//                    self.isLoggedIn = false
-//                    self.email = ""
-//                    self.password = ""
-//                    UserDefaults.standard.removeObject(forKey: "userToken")
-//                    UserDefaults.standard.removeObject(forKey: "userData")
-//                    UserDefaults.standard.removeObject(forKey: "email")
-//                    UserDefaults.standard.removeObject(forKey: "password")
-//                    UserDefaults.standard.removeObject(forKey: "savedHirarkiData")
-//                    UserDefaults.standard.removeObject(forKey: "loadHirarkiData")
-//                    
-//                    // Hapus semua data hierarki dari Core Data
-//                    await clearCoreData()
-//                }
-//            } catch {
-//                print("Error during logout: \(error.localizedDescription)")
-//            }
-//        }
-//    }
     
     // MARK: - Authentication Methods
     func logout() async {
@@ -677,81 +653,6 @@ final class AuthViewModel: ObservableObject {
             UserDefaults.standard.removeObject(forKey: key)
         }
     }
-    
-    // MARK: - Fetch hirarki data
-//    func fetchHirarkiData() async {
-//        
-//        guard let token = token else {
-//            errorMessage = "No authentication token available"
-//            print("No token available")
-//            return
-//        }
-//        
-//        let hirarkiURL = BaseURL.hirarkiData
-//        var request = URLRequest(url: hirarkiURL)
-//        request.httpMethod = "GET"
-//        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//        print("Request prepared with token")
-//        
-//        do {
-//            print("Starting network request")
-//            let (data, response) = try await session.data(for: request)
-//            
-//            if let responseBody = String(data: data, encoding: .utf8) {
-//                print("Raw Response Hierarchy: \(responseBody)")
-//            }
-//            
-//            guard let httpResponse = response as? HTTPURLResponse else {
-//                errorMessage = "Invalid response type"
-//                print("Invalid response type received")
-//                return
-//            }
-//            
-//            guard httpResponse.statusCode == 200 else {
-//                errorMessage = "Server error: \(httpResponse.statusCode)"
-//                print("Non-200 status code received: \(httpResponse.statusCode)")
-//                return
-//            }
-//            
-//            //Successfully decoded HierarchyResponse
-//            let decodedResponse = try JSONDecoder().decode(HierarchyResponse.self, from: data)
-//            self.plants = decodedResponse.data
-//            
-//            if !self.plants.isEmpty {
-//                //print("Starting to save hierarchy data")
-//                do {
-//                    try await saveHierarchyData()
-//                    //print("Saving hierarchy data")
-//                    try context.save()
-//                    //print("Successfully completed saveHierarchyData: \(plants)")
-//                } catch {
-//                    print("Error in saveHierarchyData: \(error)")
-//                    errorMessage = "Error saving hierarchy data: \(error.localizedDescription)"
-//                }
-//            } else {
-//                print("No data to save. Plants array is empty.")
-//            }
-//            
-//        } catch let decodingError as DecodingError {
-//            print("Decoding error: \(decodingError)")
-//            switch decodingError {
-//            case .dataCorrupted(let context):
-//                print("Data corrupted: \(context)")
-//            case .keyNotFound(let key, let context):
-//                print("Key '\(key)' not found: \(context)")
-//            case .typeMismatch(let type, let context):
-//                print("Type mismatch for type \(type): \(context)")
-//            case .valueNotFound(let type, let context):
-//                print("Value of type \(type) not found: \(context)")
-//            @unknown default:
-//                print("Unknown decoding error")
-//            }
-//            errorMessage = "Error decoding data: \(decodingError.localizedDescription)"
-//        } catch {
-//            print("Network or other error: \(error)")
-//            errorMessage = "Error fetching hierarchy data: \(error.localizedDescription)"
-//        }
-//    }
     
     // MARK: - Hierarchy Data Fetching
     func fetchHirarkiData() async {
@@ -860,40 +761,6 @@ final class AuthViewModel: ObservableObject {
         case invalidResponse
         case serverError(Int)
     }
-    
-    //MARK: Refresh hirarki data
-//    func refreshHirarkiData() async {
-//        guard let token = self.token else {
-//            print("No token available for refresh")
-//            return
-//        }
-//        
-//        let hirarkiURL = BaseURL.hirarkiData
-//        var request = URLRequest(url: hirarkiURL)
-//        request.httpMethod = "GET"
-//        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//        
-//        do {
-//            let (data, response) = try await URLSession.shared.data(for: request)
-//            
-//            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-//                print("Failed to refresh plant data")
-//                return
-//            }
-//            
-//            // Decode the fresh data
-//            let decodedResponse = try JSONDecoder().decode(HierarchyResponse.self, from: data)
-//            
-//            // Update the UI on the main thread
-//            DispatchQueue.main.async {
-//                self.plants = decodedResponse.data
-//            }
-//            
-//            print("Hirarki data successfully refreshed")
-//        } catch {
-//            print("Error refreshing plant data: \(error)")
-//        }
-//    }
     
     // MARK: - Hierarchy Data Refresh
     func refreshHirarkiData() async {
