@@ -14,17 +14,21 @@ struct URLSettingsView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var showAddURLAlert = false
+    @State private var showEditURLAlert = false
+    
     @State private var newURLName = ""
     @State private var newURLAddress = ""
-    @State private var selectedURL: String = ""
-
     
+    @State private var editingIndex: Int? = nil
+
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Predefined URLs")) {
                     List {
-                        ForEach(viewModel.predefinedURLs) { urlItem in
+                        ForEach(viewModel.predefinedURLs.indices, id: \.self) { index in
+                            let urlItem = viewModel.predefinedURLs[index]
+                            
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text(urlItem.name)
@@ -42,26 +46,27 @@ struct URLSettingsView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 if viewModel.updateSelectedURL(urlItem.url) {
-                                    // Selection successful
-                                    alertMessage = "API URL successfully updated!" // Pesan sukses
+                                    alertMessage = "API URL successfully updated!"
                                     showAlert = true
-//                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                                        selectedURL = viewModel.selectedURL // 🔄 Paksa UI update
-//                                    }
-//                                    dismiss()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-                                        showAlert = false
-                                    }
                                 } else {
                                     alertMessage = "Invalid API URL format. URL must end with /api/ and be a valid IP address or localhost."
                                     showAlert = true
                                 }
                             }
-                            .alert(isPresented: $showAlert) {
-                                Alert(title: Text("Notification"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                            .swipeActions {
+                                Button("Edit") {
+                                    editingIndex = index
+                                    newURLName = urlItem.name
+                                    newURLAddress = urlItem.url
+                                    showEditURLAlert = true
+                                }
+                                .tint(.orange)
+                                
+                                Button("Delete", role: .destructive) {
+                                    viewModel.deleteURL(at: IndexSet(integer: index))
+                                }
                             }
                         }
-                        .onDelete(perform: viewModel.deleteURL)
                     }
                 }
                 
@@ -90,11 +95,14 @@ struct URLSettingsView: View {
                 }
             }
             .navigationTitle("API URL Settings")
-            .navigationBarItems(
-                trailing: Button("Done") {
-                    dismiss()
-                }
-            )
+            .navigationBarItems(trailing: Button("Done") { dismiss() })
+            
+            .alert("Notification", isPresented: $showAlert) {
+                Button("OK") { showAlert = false }
+            } message: {
+                Text(alertMessage)
+            }
+            
             .alert("Add New URL", isPresented: $showAddURLAlert) {
                 TextField("Name (e.g., Office)", text: $newURLName)
                 TextField("URL (must end with /api/)", text: $newURLAddress)
@@ -107,17 +115,32 @@ struct URLSettingsView: View {
                         newURLName = ""
                         newURLAddress = ""
                     } else {
-                        alertMessage = "Invalid API URL format. URL must:\n- End with /api/\n- Use http:// or https://\n- Contain a valid IP address or localhost"
+                        alertMessage = "Invalid API URL format."
                         showAlert = true
                     }
                 }
             } message: {
                 Text("Please enter the URL details")
             }
-            .alert("Error", isPresented: $showAlert) {
-                Button("OK", role: .cancel) { }
+            
+            .alert("Edit URL", isPresented: $showEditURLAlert) {
+                TextField("Name", text: $newURLName)
+                TextField("URL", text: $newURLAddress)
+                Button("Cancel", role: .cancel) {
+                    editingIndex = nil
+                }
+                Button("Save") {
+                    if let index = editingIndex {
+                        if viewModel.updateURL(at: index, name: newURLName, url: newURLAddress) {
+                            editingIndex = nil
+                        } else {
+                            alertMessage = "Invalid API URL format."
+                            showAlert = true
+                        }
+                    }
+                }
             } message: {
-                Text(alertMessage)
+                Text("Edit the URL details")
             }
         }
     }
@@ -126,13 +149,3 @@ struct URLSettingsView: View {
 #Preview {
     URLSettingsView()
 }
-
-//#Preview {
-//    let mockViewModel = URLItemViewModel()
-//    // Add custom preview data if needed
-//    mockViewModel.predefinedURLs = [
-//        URLItemModel(name: "Test Server", url: "http://test.example.com/api/"),
-//        URLItemModel(name: "Development", url: "http://dev.example.com/api/")
-//    ]
-//    return URLSettingsView()
-//}

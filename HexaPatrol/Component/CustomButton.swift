@@ -38,7 +38,7 @@ struct CustomButton: View {
 
 // Logout Button component
 struct LogoutButton: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var authViewModel: APIService
     
     var body: some View {
         CustomButton(
@@ -55,5 +55,5 @@ struct LogoutButton: View {
 
 #Preview {
     LogoutButton()
-        .environmentObject(AuthViewModel())
+        .environmentObject(APIService())
 }

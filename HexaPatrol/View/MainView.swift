@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
-    @EnvironmentObject var viewModel: AuthViewModel
+    @EnvironmentObject var viewModel: APIService
     var body: some View {
         Group {
             
@@ -27,6 +27,6 @@ struct MainView: View {
 
 #Preview {
     MainView()
-        .environmentObject(AuthViewModel())
+        .environmentObject(APIService())
         .environmentObject(CameraViewModel())
 }

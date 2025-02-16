@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UserInfoView: View {
-    @EnvironmentObject var viewModel: AuthViewModel
+    @EnvironmentObject var viewModel: APIService
     @EnvironmentObject var cameraViewModel: CameraViewModel
     @State private var searchText = ""
     let user: User?
@@ -77,6 +77,6 @@ struct UserInfoView: View {
 
 #Preview {
     UserInfoView(user: nil)
-        .environmentObject(AuthViewModel())
+        .environmentObject(APIService())
         .environmentObject(CameraViewModel())
 }

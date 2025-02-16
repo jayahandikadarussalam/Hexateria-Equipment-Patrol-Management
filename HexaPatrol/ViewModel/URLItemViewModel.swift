@@ -75,6 +75,12 @@ class URLItemViewModel: ObservableObject {
         // Validate URL format
         guard isValidAPIURL(url) else { return false }
         
+        // Check if name or URL already exists
+        if predefinedURLs.contains(where: { $0.name == name || $0.url == url }) {
+            print("❌ URL atau nama sudah ada dalam daftar.")
+            return false
+        }
+        
         let newItem = URLItemModel(name: name, url: url)
         predefinedURLs.append(newItem)
         saveURLs()
@@ -129,9 +135,16 @@ class URLItemViewModel: ObservableObject {
         
         return true
     }
-
-
     
+    func updateURL(at index: Int, name: String, url: String) -> Bool {
+        guard index >= 0, index < predefinedURLs.count else { return false }
+        guard isValidAPIURL(url) else { return false }
+
+        predefinedURLs[index] = URLItemModel(name: name, url: url)
+        saveURLs()
+        return true
+    }
+
     // MARK: - Data Persistence
     
     private func loadURLs() {

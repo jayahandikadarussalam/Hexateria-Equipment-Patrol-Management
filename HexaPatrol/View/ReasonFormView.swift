@@ -12,7 +12,7 @@ struct ReasonFormView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.managedObjectContext) var viewContext
     @EnvironmentObject var cameraViewModel: CameraViewModel
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var authViewModel: APIService
     @StateObject private var locationViewModel = LocationViewModel()
     
     let user: User?

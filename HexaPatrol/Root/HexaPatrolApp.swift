@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct HexaPatrolApp: App {
-    @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var authViewModel = APIService()
     @StateObject var cameraViewModel = CameraViewModel()
     
     var body: some Scene {

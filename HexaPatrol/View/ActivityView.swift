@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ActivityView: View {
-    @ObservedObject var viewModel: AuthViewModel
+    @ObservedObject var viewModel: APIService
     @State private var searchText = ""
     @State private var isRefreshing = false
     @State private var showToast = false
@@ -682,6 +682,6 @@ struct ParameterInputField: View {
 }
 
 #Preview {
-    ActivityView(viewModel: AuthViewModel(), user: nil)
-        .environmentObject(AuthViewModel())
+    ActivityView(viewModel: APIService(), user: nil)
+        .environmentObject(APIService())
 }

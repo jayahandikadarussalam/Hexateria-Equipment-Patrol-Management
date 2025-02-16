@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UserDetailsView: View {
-    @EnvironmentObject var viewModel: AuthViewModel
+    @EnvironmentObject var viewModel: APIService
     let user: User?
     @State private var showSignOutConfirmation = false
 

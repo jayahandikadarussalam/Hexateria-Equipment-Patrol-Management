@@ -10,7 +10,7 @@ import Combine
 import Charts
 
 struct HomeTabView: View {
-    @EnvironmentObject var viewModel: AuthViewModel
+    @EnvironmentObject var viewModel: APIService
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var cameraViewModel: CameraViewModel
     @StateObject private var locationViewModel = LocationViewModel()
@@ -458,6 +458,6 @@ struct TransactionItem: View {
 
 #Preview {
     HomeTabView(user: nil)
-        .environmentObject(AuthViewModel())
+        .environmentObject(APIService())
         .environmentObject(CameraViewModel())
 }

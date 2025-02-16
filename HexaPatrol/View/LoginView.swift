@@ -12,7 +12,7 @@ struct LoginView: View {
     @State private var password = ""
     @State private var showAlert = false
     @State private var showURLSettings = false
-    @EnvironmentObject var viewModel: AuthViewModel
+    @EnvironmentObject var viewModel: APIService
     @Environment(\.colorScheme) var colorScheme
     
     private var buttonColor: Color {
@@ -145,5 +145,5 @@ extension LoginView: AuthenticationFormProtocol {
 
 #Preview {
     LoginView()
-        .environmentObject(AuthViewModel())
+        .environmentObject(APIService())
 }
