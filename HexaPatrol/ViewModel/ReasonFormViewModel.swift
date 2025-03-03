@@ -44,6 +44,10 @@ class ReasonFormViewModel: ObservableObject {
             return
         }
 
+        // Always save to Core Data first, regardless of network status
+        await saveToCoreData(viewContext: viewContext, user: user, cameraViewModel: cameraViewModel, locationViewModel: locationViewModel)
+        
+        // If connected, also send to API
         if NetworkMonitor.shared.isConnected {
             do {
                 try await apiService.postCantPatrol(
@@ -63,29 +67,28 @@ class ReasonFormViewModel: ObservableObject {
                 )
 
                 await MainActor.run {
-                    print("✅ Form submitted successfully.")
-                    // Post notification that data has changed
-                    NotificationCenter.default.post(name: NSNotification.Name("DataSaved"), object: nil)
-                    cameraViewModel.resetCamera()
-                    onDismiss?()
+                    print("✅ API submission successful.")
                 }
             } catch {
                 await MainActor.run {
-                    print("❌ API Error: \(error.localizedDescription)")
-                    self.errorMessage = error.localizedDescription
+                    print("⚠️ API Error, but data was saved locally: \(error.localizedDescription)")
+                    self.errorMessage = "Data saved locally, but couldn't sync to server: \(error.localizedDescription)"
                     self.showError = true
-                    self.isSubmitting = false
                 }
             }
         } else {
-            await saveToCoreData(viewContext: viewContext, user: user, cameraViewModel: cameraViewModel, locationViewModel: locationViewModel)
+            await MainActor.run {
+                print("📱 Offline mode: Data saved locally only")
+                self.errorMessage = "Data saved locally. Will sync when online."
+                self.showError = true
+            }
         }
     }
 
     private func saveToCoreData(viewContext: NSManagedObjectContext, user: User?, cameraViewModel: CameraViewModel, locationViewModel: LocationViewModel) async {
-//        let context = PersistenceController.shared.container.newBackgroundContext()
         let context = viewContext
 
+        // Remove the outer do-catch since context.perform doesn't throw
         await context.perform { [weak self] in
             guard let self = self else { return }
 
@@ -123,17 +126,17 @@ class ReasonFormViewModel: ObservableObject {
                 try context.save()
                 print("✅ Data saved successfully to Core Data")
                 
-                // Sinkronisasi dengan main context
+                // Sync with main context if needed
                 Task { @MainActor in
                     try? viewContext.save()
                 }
 
-                // Post notification untuk memperbarui tampilan di HomeTabView
+                // Post notification to update HomeTabView
                 Task { @MainActor in
                     NotificationCenter.default.post(name: NSNotification.Name("DataSaved"), object: nil)
                 }
 
-                // 🔍 Cek Data yang Baru Saja Disimpan
+                // Log the saved data for verification
                 let fetchRequest: NSFetchRequest<CantPatrolModel> = CantPatrolModel.fetchRequest()
                 fetchRequest.predicate = NSPredicate(format: "id == %@", newReason.id! as CVarArg)
                 
@@ -154,8 +157,9 @@ class ReasonFormViewModel: ObservableObject {
                     print("❌ Failed to fetch saved data from Core Data")
                 }
 
-                // ⬇️ Pastikan pembaruan UI di Main Thread
+                // Update UI on the Main Thread
                 Task { @MainActor in
+                    self.isSubmitting = false
                     cameraViewModel.resetCamera()
                     self.onDismiss?()
                 }
@@ -165,6 +169,7 @@ class ReasonFormViewModel: ObservableObject {
                 Task { @MainActor in
                     self.errorMessage = "Failed to save offline: \(error.localizedDescription)"
                     self.showError = true
+                    self.isSubmitting = false
                 }
             }
         }

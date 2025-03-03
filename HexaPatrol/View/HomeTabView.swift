@@ -15,30 +15,16 @@ struct HomeTabView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var cameraViewModel: CameraViewModel
     @StateObject private var locationViewModel = LocationViewModel()
+    @StateObject private var notificationManager = NotificationManager()
     @State private var navigateToActivity = false
     @State private var selectedFilter: String = "Current Week"
-    @State private var refreshID = UUID() // Added for forcing view refresh
-    // Change this to @StateObject to make it mutable
-    @StateObject private var notificationManager = NotificationManager()
+    @State private var refreshID = UUID()
     
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
         entity: CantPatrolModel.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \CantPatrolModel.userDate, ascending: false)]
     ) var patrolActivities: FetchedResults<CantPatrolModel>
-    
-    var sortedActivities: [CantPatrolModel] {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        
-        return patrolActivities.sorted { (activity1, activity2) -> Bool in
-            guard let date1 = dateFormatter.date(from: activity1.userDate ?? ""),
-                  let date2 = dateFormatter.date(from: activity2.userDate ?? "") else {
-                return false
-            }
-            return date1 > date2 // Descending
-        }
-    }
     
     let user: User?
     let currentWeek: [StepCount] = [
@@ -292,13 +278,12 @@ struct HomeTabView: View {
                                 Text("No patrol activities yet")
                                     .foregroundColor(.secondary)
                                     .padding()
-                                
                             } else {
-                                
-                                ForEach(patrolActivities, id: \.self) { activity in
+                                ForEach(patrolActivities.filter { $0.department == user?.department ?? "" }.prefix(6), id: \.self) { activity in
                                     let status = activity.status ?? "Unknown"
-                                    let amount = status == "Cannot Patrol" ? "Scada Room" : "Scada Room"
-                                    let progress = status == "Cannot Patrol" ? 1.0 : 0
+                                    let cannotPatrolReasons = ["Rain", "Technical Issue", "Urgent"]
+                                    let amount = cannotPatrolReasons.contains(status) ? "Scada Room" : "Other Room"
+                                    let progress = cannotPatrolReasons.contains(status) ? 0 : 1.0
                                     
                                     TransactionItem(
                                         name: activity.name ?? "Unknown",
@@ -350,37 +335,24 @@ struct HomeTabView: View {
                 }
             }
             
-            .onAppear {
-                NotificationCenter.default.addObserver(forName: NSNotification.Name("DataSaved"), object: nil, queue: .main) { _ in
-                    print("🔄 DataSaved notification received, forcing view update")
-                    DispatchQueue.main.async {
-                        print("🔄 DataSaved notification received, forcing view update")
-                        refreshPatrolData()
-                    }
-                }
-            }
-            
 //            .onAppear {
-//                refreshPatrolData()
-//                notificationManager.setupCoreDataObservers(context: viewContext) {
-//                    print("🔄 CoreData context saved, refreshing UI")
+//                NotificationCenter.default.addObserver(forName: NSNotification.Name("DataSaved"), object: nil, queue: .main) { _ in
+//                    print("🔄 DataSaved notification received, forcing view update")
 //                    DispatchQueue.main.async {
+//                        print("🔄 DataSaved notification received, forcing view update")
 //                        refreshPatrolData()
 //                    }
 //                }
 //            }
-//            .refreshable {
-//                refreshPatrolData() // Add pull-to-refresh functionality
+        }
+//        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DataSaved"))) { _ in
+//            // Listen for custom notification when data changes
+//            print("📲 Received HirarkiModel notification")
+//            DispatchQueue.main.async {
+//                refreshPatrolData()
 //            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DataSaved"))) { _ in
-            // Listen for custom notification when data changes
-            print("📲 Received HirarkiModel notification")
-            DispatchQueue.main.async {
-                refreshPatrolData()
-            }
-        }
-        .id(refreshID) // Force view to refresh when refreshID changes
+//        }
+//        .id(refreshID)
     }
 }
 
@@ -446,7 +418,7 @@ struct TransactionItem: View {
     }
     
     var progressColor: Color {
-        if status == "Cannot Patrol" {
+        if ["Rain", "Technical Issue", "Urgent"].contains(status) {
             return .gray
         }
         switch progress {
@@ -494,7 +466,8 @@ struct TransactionItem: View {
                                 Image(systemName: "arrow.up")
                                     .foregroundColor(progressColor)
                             }
-                        case "Cannot Patrol" where progress == 0:
+                        case "Rain", "Technical Issue", 
+                            "Urgent" where progress == 0:
                             Button(action: { syncToBackend() }) {
                                 Image(systemName: "exclamationmark.triangle")
                                     .foregroundColor(.red)

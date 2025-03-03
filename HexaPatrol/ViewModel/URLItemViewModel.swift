@@ -92,18 +92,6 @@ class URLItemViewModel: ObservableObject {
         saveURLs()
     }
     
-//    func updateSelectedURL(_ url: String) -> Bool {
-//        guard isValidAPIURL(url) else { return false }
-//        selectedURL = url
-//        UserDefaults.standard.set(url, forKey: "BaseURL")
-//        
-//        // Instantly update BaseURL
-//        if let newURL = URL(string: url) {
-//            BaseURL.url = newURL
-//        }
-//        return true
-//    }
-    
     func updateSelectedURL(_ url: String) -> Bool {
         print("📝 Starting URL update process for: \(url)")
         

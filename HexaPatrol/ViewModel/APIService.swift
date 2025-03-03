@@ -123,7 +123,6 @@ final class APIService: ObservableObject {
     @Published var password: String = ""
     @Published private(set) var isLoggedIn: Bool = false
     @Published var locationViewModel: LocationViewModel
-//    @Published var offlinePatrols: [CantPatrolModel] = []
     
     // MARK: - Private Properties
     private var cancellables = Set<AnyCancellable>()
@@ -556,19 +555,6 @@ final class APIService: ObservableObject {
     }
     
     // MARK: - Authentication Methods
-//    func login(email: String, password: String) async {
-//        verifyLoginURL()
-//        
-//        do {
-//            let request = try createLoginRequest(email: email, password: password)
-//            let (data, response) = try await session.data(for: request)
-//            
-//            try await handleLoginResponse(data: data, response: response)
-//        } catch {
-//            loginMessage = "An error occurred: \(error.localizedDescription)"
-//        }
-//    }
-    
     func login(email: String, password: String) async {
         verifyLoginURL()
         

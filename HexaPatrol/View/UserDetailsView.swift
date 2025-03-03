@@ -38,7 +38,7 @@ struct UserDetailsView: View {
                     Section(header: Text("User Details")) {
                         UserInfoRow(label: "Department", value: user.department)
                         UserInfoRow(label: "Role", value: user.role)
-                        UserInfoRow(label: "Is Active?", value: user.isActive ? "Active" : "Not Active")
+//                        UserInfoRow(label: "Is Active?", value: user.isActive ? "Active" : "Not Active")
                     }
 
                     // Check if the user role is Super Admin or Admin to display configuration options
@@ -69,7 +69,6 @@ struct UserDetailsView: View {
                 .alert("Sign Out", isPresented: $showSignOutConfirmation) {
                     Button("Cancel", role: .cancel) {}
                     Button("Sign Out", role: .destructive) {
-//                        viewModel.logout()
                         Task {
                             await viewModel.logout()
                         }
