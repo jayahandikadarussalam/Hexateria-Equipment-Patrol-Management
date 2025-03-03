@@ -123,17 +123,6 @@ class ReasonFormViewModel: ObservableObject {
                 try context.save()
                 print("✅ Data saved successfully to Core Data")
                 
-//                DispatchQueue.main.async {
-//                    viewContext.perform {
-//                        try? viewContext.save() // Sync dengan main context
-//                    }
-//                }
-//                
-//                // Post notification that data has changed
-//                DispatchQueue.main.async {
-//                    NotificationCenter.default.post(name: NSNotification.Name("DataSaved"), object: nil)
-//                }
-                
                 // Sinkronisasi dengan main context
                 Task { @MainActor in
                     try? viewContext.save()
