@@ -1,3 +1,11 @@
+//
+//  CoreDataViewModel.swift
+//  HexaPatrol
+//
+//  Created by Jaya Handika Darussalam on 26/02/25.
+//
+
+
 import CoreData
 import Combine
 
@@ -11,7 +19,7 @@ class CoreDataViewModel: NSObject, ObservableObject, NSFetchedResultsControllerD
         self.context = context
         
         let fetchRequest: NSFetchRequest<CantPatrolModel> = CantPatrolModel.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CantPatrolModel.date, ascending: false)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CantPatrolModel.userDate, ascending: false)]
         
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
@@ -42,9 +50,12 @@ class CoreDataViewModel: NSObject, ObservableObject, NSFetchedResultsControllerD
     
     func addActivity(name: String, status: String) {
         let newActivity = CantPatrolModel(context: context)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         newActivity.name = name
         newActivity.status = status
-        newActivity.date = Date()
+//        newActivity.userDate = Date()
+        newActivity.userDate = formatter.string(from: Date())
 
         do {
             try context.save()

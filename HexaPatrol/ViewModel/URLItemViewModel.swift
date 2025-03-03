@@ -156,7 +156,7 @@ class URLItemViewModel: ObservableObject {
             // Default URLs
             predefinedURLs = [
                 URLItemModel(name: "Default", url: "http://192.168.18.00:8000/api/"),
-                URLItemModel(name: "Hexateria", url: "http://192.168.18.87:8000/api/"),
+                URLItemModel(name: "Hexateria", url: "http://192.168.18.98:8000/api/"),
                 URLItemModel(name: "Hexateria 5G", url: "http://192.168.18.96:8000/api/"),
                 URLItemModel(name: "Office APWG2", url: "http://192.168.18.31:8000/api/"),
                 URLItemModel(name: "Office HOME56", url: "http://192.168.1.37:8000/api/")

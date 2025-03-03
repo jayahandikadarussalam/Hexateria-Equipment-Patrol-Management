@@ -19,6 +19,14 @@
 		C31EFC892D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC752D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift */; };
 		C31EFC8A2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7E2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift */; };
 		C31EFC8B2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31EFC7F2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift */; };
+		C3AF8FFD2D6ECC5200D341A4 /* PhotoTrxModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF8FF72D6ECC5200D341A4 /* PhotoTrxModel+CoreDataClass.swift */; };
+		C3AF8FFE2D6ECC5200D341A4 /* ReasonTrxModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF8FFA2D6ECC5200D341A4 /* ReasonTrxModel+CoreDataProperties.swift */; };
+		C3AF8FFF2D6ECC5200D341A4 /* PhotoTrxModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF8FF82D6ECC5200D341A4 /* PhotoTrxModel+CoreDataProperties.swift */; };
+		C3AF90002D6ECC5200D341A4 /* ReasonTrxModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF8FF92D6ECC5200D341A4 /* ReasonTrxModel+CoreDataClass.swift */; };
+		C3AF90012D6ECC5200D341A4 /* UserTrxModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF8FFC2D6ECC5200D341A4 /* UserTrxModel+CoreDataProperties.swift */; };
+		C3AF90022D6ECC5200D341A4 /* UserTrxModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF8FFB2D6ECC5200D341A4 /* UserTrxModel+CoreDataClass.swift */; };
+		C3AF90132D6F075B00D341A4 /* CantPatrolModel+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF90112D6F075B00D341A4 /* CantPatrolModel+CoreDataClass.swift */; };
+		C3AF90142D6F075B00D341A4 /* CantPatrolModel+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF90122D6F075B00D341A4 /* CantPatrolModel+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +43,14 @@
 		C31EFC7E2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TagnoModel+CoreDataClass.swift"; sourceTree = "<group>"; };
 		C31EFC7F2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TagnoModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		C360DDD62D2177BF00E9D6AA /* HexaPatrol.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HexaPatrol.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C3AF8FF72D6ECC5200D341A4 /* PhotoTrxModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoTrxModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C3AF8FF82D6ECC5200D341A4 /* PhotoTrxModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoTrxModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C3AF8FF92D6ECC5200D341A4 /* ReasonTrxModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReasonTrxModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C3AF8FFA2D6ECC5200D341A4 /* ReasonTrxModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReasonTrxModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C3AF8FFB2D6ECC5200D341A4 /* UserTrxModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserTrxModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C3AF8FFC2D6ECC5200D341A4 /* UserTrxModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserTrxModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C3AF90112D6F075B00D341A4 /* CantPatrolModel+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CantPatrolModel+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C3AF90122D6F075B00D341A4 /* CantPatrolModel+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CantPatrolModel+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -59,6 +75,14 @@
 		C360DDCD2D2177BF00E9D6AA = {
 			isa = PBXGroup;
 			children = (
+				C3AF90112D6F075B00D341A4 /* CantPatrolModel+CoreDataClass.swift */,
+				C3AF90122D6F075B00D341A4 /* CantPatrolModel+CoreDataProperties.swift */,
+				C3AF8FF72D6ECC5200D341A4 /* PhotoTrxModel+CoreDataClass.swift */,
+				C3AF8FF82D6ECC5200D341A4 /* PhotoTrxModel+CoreDataProperties.swift */,
+				C3AF8FF92D6ECC5200D341A4 /* ReasonTrxModel+CoreDataClass.swift */,
+				C3AF8FFA2D6ECC5200D341A4 /* ReasonTrxModel+CoreDataProperties.swift */,
+				C3AF8FFB2D6ECC5200D341A4 /* UserTrxModel+CoreDataClass.swift */,
+				C3AF8FFC2D6ECC5200D341A4 /* UserTrxModel+CoreDataProperties.swift */,
 				C31EFC742D2BCEC30064F22A /* AreaModel+CoreDataClass.swift */,
 				C31EFC752D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift */,
 				C31EFC762D2BCEC30064F22A /* EquipmentGroupModel+CoreDataClass.swift */,
@@ -165,11 +189,19 @@
 				C31EFC842D2BCEC30064F22A /* EquipmentGroupModel+CoreDataProperties.swift in Sources */,
 				C31EFC852D2BCEC30064F22A /* EquipmentTypeModel+CoreDataProperties.swift in Sources */,
 				C31EFC862D2BCEC30064F22A /* AreaModel+CoreDataClass.swift in Sources */,
+				C3AF90132D6F075B00D341A4 /* CantPatrolModel+CoreDataClass.swift in Sources */,
+				C3AF90142D6F075B00D341A4 /* CantPatrolModel+CoreDataProperties.swift in Sources */,
 				C31EFC872D2BCEC30064F22A /* ParameterModel+CoreDataProperties.swift in Sources */,
 				C31EFC882D2BCEC30064F22A /* PlantModel+CoreDataClass.swift in Sources */,
 				C31EFC892D2BCEC30064F22A /* AreaModel+CoreDataProperties.swift in Sources */,
 				C31EFC8A2D2BCEC30064F22A /* TagnoModel+CoreDataClass.swift in Sources */,
 				C31EFC8B2D2BCEC30064F22A /* TagnoModel+CoreDataProperties.swift in Sources */,
+				C3AF8FFD2D6ECC5200D341A4 /* PhotoTrxModel+CoreDataClass.swift in Sources */,
+				C3AF8FFE2D6ECC5200D341A4 /* ReasonTrxModel+CoreDataProperties.swift in Sources */,
+				C3AF8FFF2D6ECC5200D341A4 /* PhotoTrxModel+CoreDataProperties.swift in Sources */,
+				C3AF90002D6ECC5200D341A4 /* ReasonTrxModel+CoreDataClass.swift in Sources */,
+				C3AF90012D6ECC5200D341A4 /* UserTrxModel+CoreDataProperties.swift in Sources */,
+				C3AF90022D6ECC5200D341A4 /* UserTrxModel+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

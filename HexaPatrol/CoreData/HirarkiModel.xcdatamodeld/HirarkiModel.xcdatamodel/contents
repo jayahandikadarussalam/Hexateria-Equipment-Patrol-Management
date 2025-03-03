@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D70" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="AreaModel" representedClassName="AreaModel" syncable="YES">
         <attribute name="areaID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="areaName" optional="YES" attributeType="String"/>
         <relationship name="areaFromPlant" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PlantModel" inverseName="plantToArea" inverseEntity="PlantModel"/>
         <relationship name="areaToGroup" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="EquipmentGroupModel" inverseName="areaFromGroup" inverseEntity="EquipmentGroupModel"/>
+    </entity>
+    <entity name="CantPatrolModel" representedClassName="CantPatrolModel" syncable="YES">
+        <attribute name="department" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" optional="YES" attributeType="Binary"/>
+        <attribute name="lat" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="lon" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="reason" optional="YES" attributeType="String"/>
+        <attribute name="reasonDate" optional="YES" attributeType="String"/>
+        <attribute name="role" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <attribute name="userDate" optional="YES" attributeType="String"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
     <entity name="EquipmentGroupModel" representedClassName="EquipmentGroupModel" syncable="YES">
         <attribute name="equipmentGroupID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -32,15 +47,39 @@
         <attribute name="unit" optional="YES" attributeType="String"/>
         <relationship name="paramFromTagno" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TagnoModel" inverseName="tagnoToParam" inverseEntity="TagnoModel"/>
     </entity>
+    <entity name="PhotoTrxModel" representedClassName="PhotoTrxModel" syncable="YES">
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
+        <attribute name="imageName" optional="YES" attributeType="String"/>
+        <attribute name="size" optional="YES" attributeType="String"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserTrxModel" inverseName="photoTransactions" inverseEntity="UserTrxModel"/>
+    </entity>
     <entity name="PlantModel" representedClassName="PlantModel" syncable="YES">
         <attribute name="plantID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="plantName" optional="YES" attributeType="String"/>
         <relationship name="plantToArea" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="AreaModel" inverseName="areaFromPlant" inverseEntity="AreaModel"/>
+    </entity>
+    <entity name="ReasonTrxModel" representedClassName="ReasonTrxModel" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="latitude" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="longitude" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="reason" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserTrxModel" inverseName="reasonTransactions" inverseEntity="UserTrxModel"/>
     </entity>
     <entity name="TagnoModel" representedClassName="TagnoModel" syncable="YES">
         <attribute name="tagnoID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tagnoName" optional="YES" attributeType="String"/>
         <relationship name="tagnoFromType" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="EquipmentTypeModel" inverseName="typeToTagno" inverseEntity="EquipmentTypeModel"/>
         <relationship name="tagnoToParam" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ParameterModel" inverseName="paramFromTagno" inverseEntity="ParameterModel"/>
+    </entity>
+    <entity name="UserTrxModel" representedClassName="UserTrxModel" syncable="YES">
+        <attribute name="department" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="role" optional="YES" attributeType="String"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
+        <relationship name="photoTransactions" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoTrxModel" inverseName="user" inverseEntity="PhotoTrxModel"/>
+        <relationship name="reasonTransactions" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ReasonTrxModel" inverseName="user" inverseEntity="ReasonTrxModel"/>
     </entity>
 </model>

@@ -13,9 +13,9 @@ struct CantPatrolResponse: Codable {
 }
 
 struct CantPatrolData: Codable {
-    let user: UserResponse
-    let photo: PhotoResponse
-    let reasonTransactions: ReasonTransactionsResponse
+    let user: UserData
+    let photo: PhotoData
+    let reasonTransactions: ReasonTransactionsData
 
     enum CodingKeys: String, CodingKey {
         case user, photo
@@ -23,7 +23,7 @@ struct CantPatrolData: Codable {
     }
 }
 
-struct UserResponse: Codable {
+struct UserData: Codable {
     let id: Int
     let name, username, department, role: String
     let date, status, updatedAt, createdAt: String
@@ -35,7 +35,7 @@ struct UserResponse: Codable {
     }
 }
 
-struct PhotoResponse: Codable {
+struct PhotoData: Codable {
     let id, userId: Int
     let imageName: String
     let size: String
@@ -50,7 +50,7 @@ struct PhotoResponse: Codable {
     }
 }
 
-struct ReasonTransactionsResponse: Codable {
+struct ReasonTransactionsData: Codable {
     let id, userId: Int
     let status, reason, location, lon, lat, date, updatedAt, createdAt: String
     

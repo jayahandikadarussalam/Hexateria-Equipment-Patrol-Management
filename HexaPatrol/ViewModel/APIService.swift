@@ -1,5 +1,5 @@
 //
-//  AuthViewModel.swift
+//  APIService.swift
 //  HexaPatrol
 //
 //  Created by Jaya Handika Darussalam on 29/12/24.
@@ -123,6 +123,7 @@ final class APIService: ObservableObject {
     @Published var password: String = ""
     @Published private(set) var isLoggedIn: Bool = false
     @Published var locationViewModel: LocationViewModel
+//    @Published var offlinePatrols: [CantPatrolModel] = []
     
     // MARK: - Private Properties
     private var cancellables = Set<AnyCancellable>()

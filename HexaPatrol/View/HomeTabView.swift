@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Charts
+import CoreData
 
 struct HomeTabView: View {
     @EnvironmentObject var viewModel: APIService
@@ -16,6 +17,28 @@ struct HomeTabView: View {
     @StateObject private var locationViewModel = LocationViewModel()
     @State private var navigateToActivity = false
     @State private var selectedFilter: String = "Current Week"
+    @State private var refreshID = UUID() // Added for forcing view refresh
+    // Change this to @StateObject to make it mutable
+    @StateObject private var notificationManager = NotificationManager()
+    
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(
+        entity: CantPatrolModel.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \CantPatrolModel.userDate, ascending: false)]
+    ) var patrolActivities: FetchedResults<CantPatrolModel>
+    
+    var sortedActivities: [CantPatrolModel] {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        
+        return patrolActivities.sorted { (activity1, activity2) -> Bool in
+            guard let date1 = dateFormatter.date(from: activity1.userDate ?? ""),
+                  let date2 = dateFormatter.date(from: activity2.userDate ?? "") else {
+                return false
+            }
+            return date1 > date2 // Descending
+        }
+    }
     
     let user: User?
     let currentWeek: [StepCount] = [
@@ -58,6 +81,12 @@ struct HomeTabView: View {
         return formatter.string(from: date)
     }
     
+    private func formattedDate(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy MMM dd • HH:mm"
+        return formatter.string(from: date)
+    }
+    
     private var backgroundColorPatrolSection: Color {
         colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
     }
@@ -68,6 +97,28 @@ struct HomeTabView: View {
     
     private var userBadgeColor: Color {
         (colorScheme == .dark ? Color(.gray) : Color.white)
+    }
+    
+    private func refreshPatrolData() {
+        
+        let fetchRequest: NSFetchRequest<CantPatrolModel> = CantPatrolModel.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CantPatrolModel.userDate, ascending: false)]
+        
+        do {
+            let results = try viewContext.fetch(fetchRequest)
+            print("📊 Refreshed data count: \(results.count)")
+            
+            for patrol in results {
+                print("🔹 ID: \(patrol.id?.uuidString ?? "Unknown")")
+                print("🔹 Name: \(patrol.name ?? "Unknown")")
+                print("🔹 Date: \(patrol.userDate ?? "Unknown")")
+                print("🔹 Location: \(patrol.location ?? "Unknown")")
+                print("🔹 Reason: \(patrol.reason ?? "Unknown")")
+                print("🔹 Status: \(patrol.status ?? "Unknown")")
+            }
+        } catch {
+            print("❌ Error refreshing data: \(error)")
+        }
     }
 
     var body: some View {
@@ -189,8 +240,8 @@ struct HomeTabView: View {
                             Spacer()
 
                             Picker("", selection: $selectedFilter) {
-                                Text("Current Week").tag("Current Week")
-                                Text("Last Week").tag("Last Week")
+                                Text("current week").tag("Current Week")
+                                Text("last week").tag("Last Week")
                             }
                             .pickerStyle(.menu)
 //                            .frame(width: 180)
@@ -224,8 +275,7 @@ struct HomeTabView: View {
                     .padding(.vertical, 24)
                     .background(backgroundColor)
                     .cornerRadius(16)
-                    
-                    
+
                     // MARK: Recent Transactions
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
@@ -236,53 +286,32 @@ struct HomeTabView: View {
                                 .font(.system(size: 14))
                                 .foregroundColor(.blue)
                         }
-                        
+
                         LazyVStack(spacing: 16) {
-                            TransactionItem(
-                                name: "Jajang Aldebaran",
-                                date: "2024 Dec 31 • 14:21pm",
-                                amount: "Scada Room",
-                                status: "Can't Patrol",
-                                isOutgoing: true,
-                                progress: 0.0
-                            )
-                            
-                            TransactionItem(
-                                name: "Ujang Kenzo",
-                                date: "2024 Dec 30 • 7:30am",
-                                amount: "All Area",
-                                status: "Finish",
-                                isOutgoing: true,
-                                progress: 1.0
-                            )
-                            
-                            TransactionItem(
-                                name: "Rey Saepudin",
-                                date: "2024 Dec 30 • 9:01am",
-                                amount: "All Area",
-                                status: "Finish",
-                                isOutgoing: true,
-                                progress: 1.0
-                            )
-                            
-                            TransactionItem(
-                                name: "Asep Zavian",
-                                date: "2024 Dec 31 • 8:45pm",
-                                amount: "Area CA-2",
-                                status: "Progress",
-                                isOutgoing: false,
-                                progress: 0.40
-                            )
-                            
-                            TransactionItem(
-                                name: "Aceng Kaivan",
-                                date: "2024 Dec 31 • 22:01pm",
-                                amount: "Area CA-1",
-                                status: "Progress",
-                                isOutgoing: false,
-                                progress: 0.75
-                            )
+                            if patrolActivities.isEmpty {
+                                Text("No patrol activities yet")
+                                    .foregroundColor(.secondary)
+                                    .padding()
+                                
+                            } else {
+                                
+                                ForEach(patrolActivities, id: \.self) { activity in
+                                    let status = activity.status ?? "Unknown"
+                                    let amount = status == "Cannot Patrol" ? "Scada Room" : "Scada Room"
+                                    let progress = status == "Cannot Patrol" ? 1.0 : 0
+                                    
+                                    TransactionItem(
+                                        name: activity.name ?? "Unknown",
+                                        date: activity.userDate ?? "Unknown",
+                                        amount: amount,
+                                        status: status,
+                                        isOutgoing: true,
+                                        progress: progress
+                                    )
+                                }
+                            }
                         }
+                        .id(refreshID)
                     }
                     .padding(16)
                     .background(backgroundColor)
@@ -290,8 +319,7 @@ struct HomeTabView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
-            }
-//            .padding(.bottom, 10)
+            } //End ScrollView
             .background(Color(UIColor.systemGroupedBackground))
             .navigationDestination(isPresented: $navigateToActivity) {
                 if user?.role == "Operators" {
@@ -301,17 +329,82 @@ struct HomeTabView: View {
                     ActivityView(viewModel: viewModel, user: user)
                 }
             }
-            .sheet(isPresented: $cameraViewModel.isShowingCamera) {
+            .sheet(isPresented: $cameraViewModel.isShowingCamera, onDismiss: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    refreshPatrolData() // Refresh with a small delay
+                    print("🔄 Camera sheet dismissed, refreshing data")
+                }
+            }) {
                 ImagePicker(viewModel: cameraViewModel)
             }
 
-            .sheet(isPresented: $cameraViewModel.showReasonForm) {
+            .sheet(isPresented: $cameraViewModel.showReasonForm, onDismiss: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    refreshPatrolData() // Refresh with a small delay
+                    print("⚠️ Reason form dismissed, refreshing data")
+                }
+            }) {
                 if cameraViewModel.selectedImage != nil {
                     ReasonFormView(user: user)
                         .environmentObject(cameraViewModel)
                 }
             }
+            
+            .onAppear {
+                NotificationCenter.default.addObserver(forName: NSNotification.Name("DataSaved"), object: nil, queue: .main) { _ in
+                    print("🔄 DataSaved notification received, forcing view update")
+                    DispatchQueue.main.async {
+                        print("🔄 DataSaved notification received, forcing view update")
+                        refreshPatrolData()
+                    }
+                }
+            }
+            
+//            .onAppear {
+//                refreshPatrolData()
+//                notificationManager.setupCoreDataObservers(context: viewContext) {
+//                    print("🔄 CoreData context saved, refreshing UI")
+//                    DispatchQueue.main.async {
+//                        refreshPatrolData()
+//                    }
+//                }
+//            }
+//            .refreshable {
+//                refreshPatrolData() // Add pull-to-refresh functionality
+//            }
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DataSaved"))) { _ in
+            // Listen for custom notification when data changes
+            print("📲 Received HirarkiModel notification")
+            DispatchQueue.main.async {
+                refreshPatrolData()
+            }
+        }
+        .id(refreshID) // Force view to refresh when refreshID changes
+    }
+}
+
+// Add this class to manage notifications
+class NotificationManager: ObservableObject {
+    private var cancellables = Set<AnyCancellable>()
+    
+    func setupCoreDataObservers(context: NSManagedObjectContext, onSave: @escaping () -> Void) {
+        NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave)
+            .sink { notification in
+                print("🟢 NSManagedObjectContextDidSave triggered")
+                if notification.object as? NSManagedObjectContext == context {
+                    onSave()
+                }
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .NSManagedObjectContextObjectsDidChange)
+            .sink { notification in
+                if notification.object as? NSManagedObjectContext == context {
+                    print("🔄 Objects in context changed")
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -328,7 +421,6 @@ struct StepCount: Identifiable {
 }
 
 struct TransactionItem: View {
-//    let id = UUID()
     let name: String
     let date: String
     let amount: String
@@ -351,12 +443,10 @@ struct TransactionItem: View {
         self.status = status
         self.isOutgoing = isOutgoing
         self.progress = progress
-        
-//        print("Initialized TransactionItem: \(name), \(date), \(amount), \(type), \(isOutgoing), \(progress)")
     }
     
     var progressColor: Color {
-        if status == "Can't Patrol" {
+        if status == "Cannot Patrol" {
             return .gray
         }
         switch progress {
@@ -404,7 +494,7 @@ struct TransactionItem: View {
                                 Image(systemName: "arrow.up")
                                     .foregroundColor(progressColor)
                             }
-                        case "Can't Patrol" where progress == 0:
+                        case "Cannot Patrol" where progress == 0:
                             Button(action: { syncToBackend() }) {
                                 Image(systemName: "exclamationmark.triangle")
                                     .foregroundColor(.red)
@@ -453,11 +543,11 @@ struct TransactionItem: View {
                 .animation(.easeInOut, value: showToast)
         }
     }
-} //End Transcation
-
+} //End Transaction
 
 #Preview {
     HomeTabView(user: nil)
         .environmentObject(APIService())
         .environmentObject(CameraViewModel())
+        .environment(\.managedObjectContext, PersistenceController.shared.context)
 }

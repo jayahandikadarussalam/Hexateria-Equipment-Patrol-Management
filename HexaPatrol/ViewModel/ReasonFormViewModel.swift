@@ -1,27 +1,21 @@
+//
+//  ReasonFormViewModel.swift
+//  HexaPatrol
+//
+//  Created by Jaya Handika Darussalam on 26/02/25.
+//
+
 import SwiftUI
 import CoreData
 
-@MainActor
 class ReasonFormViewModel: ObservableObject {
     @Published var selectedStatus = "Rain"
     @Published var reason = ""
     @Published var isSubmitting = false
     @Published var showError = false
     @Published var errorMessage = ""
-    
-    let statusOptions = ["Rain", "Technical Issue", "Urgent"]
-    
-    private let apiService: APIService
-    private let cameraViewModel: CameraViewModel
-    private let locationViewModel: LocationViewModel
-    private let user: User?
-    
-    init(apiService: APIService, cameraViewModel: CameraViewModel, locationViewModel: LocationViewModel, user: User?) {
-        self.apiService = apiService
-        self.cameraViewModel = cameraViewModel
-        self.locationViewModel = locationViewModel
-        self.user = user
-    }
+
+    var onDismiss: (() -> Void)?
     
     var formattedDate: String {
         let formatter = DateFormatter()
@@ -29,37 +23,161 @@ class ReasonFormViewModel: ObservableObject {
         return formatter.string(from: Date())
     }
     
-    func submitForm(dismiss: @escaping () -> Void) async {
-        isSubmitting = true
+    func submitForm(apiService: APIService,
+                    cameraViewModel: CameraViewModel,
+                    locationViewModel: LocationViewModel,
+                    user: User?,
+                    viewContext: NSManagedObjectContext) async {
+        await MainActor.run {
+            isSubmitting = true
+        }
         
-        do {
-            guard let image = cameraViewModel.selectedImage else {
-                throw NSError(domain: "FormError", code: 400, userInfo: [NSLocalizedDescriptionKey: "No image captured"])
+        print("📸 Submitting form... Checking image.")
+
+        guard let image = cameraViewModel.selectedImage else {
+            print("❌ Error: No image captured at submitForm()")
+            await MainActor.run {
+                self.errorMessage = "No image captured"
+                self.showError = true
+                self.isSubmitting = false
             }
-            
-            try await apiService.postCantPatrol(
-                name: user?.name ?? "",
-                username: user?.email ?? "",
-                department: user?.department ?? "",
-                role: user?.role ?? "",
-                userDate: formattedDate,
-                image: image,
-                size: "\(cameraViewModel.imageSize ?? 0)",
-                status: selectedStatus,
-                reason: reason,
-                location: locationViewModel.locationName,
-                lon: Decimal(locationViewModel.longitude ?? 0.0),
-                lat: Decimal(locationViewModel.latitude ?? 0.0),
-                reasonDate: formattedDate
-            )
-            
-            // Reset & dismiss on success
-            cameraViewModel.resetCamera()
-            dismiss()
-        } catch {
-            errorMessage = error.localizedDescription
-            showError = true
-            isSubmitting = false
+            return
+        }
+
+        if NetworkMonitor.shared.isConnected {
+            do {
+                try await apiService.postCantPatrol(
+                    name: user?.name ?? "",
+                    username: user?.email ?? "",
+                    department: user?.department ?? "",
+                    role: user?.role ?? "",
+                    userDate: formattedDate,
+                    image: image,
+                    size: "\(cameraViewModel.imageSize ?? 0)",
+                    status: selectedStatus,
+                    reason: reason,
+                    location: locationViewModel.locationName,
+                    lon: Decimal(locationViewModel.longitude ?? 0.0),
+                    lat: Decimal(locationViewModel.latitude ?? 0.0),
+                    reasonDate: formattedDate
+                )
+
+                await MainActor.run {
+                    print("✅ Form submitted successfully.")
+                    // Post notification that data has changed
+                    NotificationCenter.default.post(name: NSNotification.Name("DataSaved"), object: nil)
+                    cameraViewModel.resetCamera()
+                    onDismiss?()
+                }
+            } catch {
+                await MainActor.run {
+                    print("❌ API Error: \(error.localizedDescription)")
+                    self.errorMessage = error.localizedDescription
+                    self.showError = true
+                    self.isSubmitting = false
+                }
+            }
+        } else {
+            await saveToCoreData(viewContext: viewContext, user: user, cameraViewModel: cameraViewModel, locationViewModel: locationViewModel)
+        }
+    }
+
+    private func saveToCoreData(viewContext: NSManagedObjectContext, user: User?, cameraViewModel: CameraViewModel, locationViewModel: LocationViewModel) async {
+//        let context = PersistenceController.shared.container.newBackgroundContext()
+        let context = viewContext
+
+        await context.perform { [weak self] in
+            guard let self = self else { return }
+
+            if context.persistentStoreCoordinator == nil {
+                print("⚠️ Error: Context does not have a persistentStoreCoordinator")
+                return
+            }
+
+            let newReason = CantPatrolModel(context: context)
+            newReason.id = UUID()
+            newReason.name = user?.name ?? "Unknown"
+            newReason.username = user?.email ?? "Unknown"
+            newReason.department = user?.department ?? "Unknown"
+            newReason.role = user?.role ?? "Unknown"
+            newReason.userDate = self.formattedDate
+            newReason.status = self.selectedStatus
+            newReason.reason = self.reason
+            newReason.location = locationViewModel.locationName.isEmpty ? "Unknown Location" : locationViewModel.locationName
+
+            // Set coordinates safely
+            newReason.lon = NSDecimalNumber(value: locationViewModel.longitude ?? 0.0)
+            newReason.lat = NSDecimalNumber(value: locationViewModel.latitude ?? 0.0)
+
+            // Save image data
+            if let image = cameraViewModel.selectedImage, let imageData = image.jpegData(compressionQuality: 0.5) {
+                newReason.image = imageData
+            } else {
+                newReason.image = nil
+            }
+
+            newReason.reasonDate = self.formattedDate
+
+            do {
+                print("🔄 Attempting to save context...")
+                try context.save()
+                print("✅ Data saved successfully to Core Data")
+                
+//                DispatchQueue.main.async {
+//                    viewContext.perform {
+//                        try? viewContext.save() // Sync dengan main context
+//                    }
+//                }
+//                
+//                // Post notification that data has changed
+//                DispatchQueue.main.async {
+//                    NotificationCenter.default.post(name: NSNotification.Name("DataSaved"), object: nil)
+//                }
+                
+                // Sinkronisasi dengan main context
+                Task { @MainActor in
+                    try? viewContext.save()
+                }
+
+                // Post notification untuk memperbarui tampilan di HomeTabView
+                Task { @MainActor in
+                    NotificationCenter.default.post(name: NSNotification.Name("DataSaved"), object: nil)
+                }
+
+                // 🔍 Cek Data yang Baru Saja Disimpan
+                let fetchRequest: NSFetchRequest<CantPatrolModel> = CantPatrolModel.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "id == %@", newReason.id! as CVarArg)
+                
+                if let savedReason = try context.fetch(fetchRequest).first {
+                    print("📄 RAW RESPONSE FROM CORE DATA:")
+                    print("🆔 ID: \(String(describing: savedReason.id))")
+                    print("👤 Name: \(savedReason.name ?? "nil")")
+                    print("📧 Username: \(savedReason.username ?? "nil")")
+                    print("📧 UserDate: \(savedReason.userDate ?? "nil")")
+                    print("🏢 Department: \(savedReason.department ?? "nil")")
+                    print("📌 Location: \(savedReason.location ?? "nil")")
+                    print("📝 Reason: \(savedReason.reason ?? "nil")")
+                    print("📌 Status: \(savedReason.status ?? "nil")")
+                    print("📍 Lon: \(String(describing: savedReason.lon))")
+                    print("📍 Lat: \(String(describing: savedReason.lat))")
+                    print("🖼 Image Data Size: \(savedReason.image?.count ?? 0) bytes")
+                } else {
+                    print("❌ Failed to fetch saved data from Core Data")
+                }
+
+                // ⬇️ Pastikan pembaruan UI di Main Thread
+                Task { @MainActor in
+                    cameraViewModel.resetCamera()
+                    self.onDismiss?()
+                }
+            } catch {
+                print("❌ CORE DATA ERROR: \(error.localizedDescription)")
+
+                Task { @MainActor in
+                    self.errorMessage = "Failed to save offline: \(error.localizedDescription)"
+                    self.showError = true
+                }
+            }
         }
     }
 }
