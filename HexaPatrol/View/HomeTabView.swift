@@ -10,6 +10,22 @@ import Combine
 import Charts
 import CoreData
 
+extension String {
+    func convertToFormattedDate(inputFormat: String = "yyyy-MM-dd HH:mm:ss",
+                                 outputFormat: String = "yyyy MMM dd • HH:mm") -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = inputFormat
+        
+        if let date = inputFormatter.date(from: self) {
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = outputFormat
+            return outputFormatter.string(from: date)
+        }
+        
+        return self // Fallback to original string if conversion fails
+    }
+}
+
 struct HomeTabView: View {
     @EnvironmentObject var viewModel: APIService
     @Environment(\.colorScheme) var colorScheme
@@ -19,6 +35,7 @@ struct HomeTabView: View {
     @State private var navigateToActivity = false
     @State private var selectedFilter: String = "Current Week"
     @State private var refreshID = UUID()
+    @Binding var selectedTab: Int
     
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
@@ -67,12 +84,21 @@ struct HomeTabView: View {
         return formatter.string(from: date)
     }
     
-    private func formattedDate(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy MMM dd • HH:mm"
-        return formatter.string(from: date)
-    }
+    // Helper method to convert string date to formatted string
+//    private func formatDate(_ dateString: String) -> String {
+//        let inputFormatter = DateFormatter()
+//        inputFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss" // Adjust this to match your input date format
+//        
+//        if let date = inputFormatter.date(from: dateString) {
+//            let outputFormatter = DateFormatter()
+//            outputFormatter.dateFormat = "yyyy MMM dd • HH:mm"
+//            return outputFormatter.string(from: date)
+//        }
+//        
+//        return dateString // Fallback to original string if conversion fails
+//    }
     
+
     private var backgroundColorPatrolSection: Color {
         colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
     }
@@ -217,17 +243,17 @@ struct HomeTabView: View {
                     .background(backgroundColor)
                     .cornerRadius(16)
                     
-                    //MARK: Patrol Statistics
+                    //MARK: Patrol Bar Chart
                     VStack(spacing: 24) {
                         HStack() {
-                            Text("Patrol Bar Chart")
+                            Text("Patrol bar chart")
                                 .font(.system(size: 16, weight: .medium))
 
                             Spacer()
 
                             Picker("", selection: $selectedFilter) {
-                                Text("current week").tag("Current Week")
-                                Text("last week").tag("Last Week")
+                                Text("Current week").tag("Current Week")
+                                Text("Last week").tag("Last Week")
                             }
                             .pickerStyle(.menu)
 //                            .frame(width: 180)
@@ -265,12 +291,16 @@ struct HomeTabView: View {
                     // MARK: Recent Transactions
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
-                            Text("Recent Patrol")
+                            Text("Recent patrol")
                                 .font(.system(size: 16, weight: .medium))
                             Spacer()
-                            Text("see all")
-                                .font(.system(size: 14))
-                                .foregroundColor(.blue)
+                            Button(action: {
+                                selectedTab = 1 // Switch to the History tab
+                            }) {
+                                Text("See all")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.blue)
+                            }
                         }
 
                         LazyVStack(spacing: 16) {
@@ -279,7 +309,7 @@ struct HomeTabView: View {
                                     .foregroundColor(.secondary)
                                     .padding()
                             } else {
-                                ForEach(patrolActivities.filter { $0.department == user?.department ?? "" }.prefix(6), id: \.self) { activity in
+                                ForEach(patrolActivities.filter { $0.department == user?.department ?? "" }.prefix(5), id: \.self) { activity in
                                     let status = activity.status ?? "Unknown"
                                     let cannotPatrolReasons = ["Rain", "Technical Issue", "Urgent"]
                                     let amount = cannotPatrolReasons.contains(status) ? "Scada Room" : "Other Room"
@@ -287,7 +317,8 @@ struct HomeTabView: View {
                                     
                                     TransactionItem(
                                         name: activity.name ?? "Unknown",
-                                        date: activity.userDate ?? "Unknown",
+                                        //date: formatDate(activity.userDate ?? "Unknown"),
+                                        date: (activity.userDate ?? "Unknown").convertToFormattedDate(),
                                         amount: amount,
                                         status: status,
                                         isOutgoing: true,
@@ -408,7 +439,12 @@ struct TransactionItem: View {
         String(format: "%.0f%%", progress * 100) // Konversi ke persen
     }
     
-    init(name: String, date: String, amount: String, status: String, isOutgoing: Bool, progress: Double) {
+    init(name: String,
+         date: String,
+         amount: String,
+         status: String,
+         isOutgoing: Bool,
+         progress: Double) {
         self.name = name
         self.date = date
         self.amount = amount
@@ -482,7 +518,8 @@ struct TransactionItem: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(name)
                     .font(.system(size: 14))
-                Text(date)
+//                Text(formatDate(date)) //Jika menggunakan func
+                Text((date).convertToFormattedDate()) //Jika menggunakan extension
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
 
@@ -518,8 +555,15 @@ struct TransactionItem: View {
     }
 } //End Transaction
 
+//#Preview {
+//    HomeTabView(user: nil)
+//        .environmentObject(APIService())
+//        .environmentObject(CameraViewModel())
+//        .environment(\.managedObjectContext, PersistenceController.shared.context)
+//}
+
 #Preview {
-    HomeTabView(user: nil)
+    HomeTabView(selectedTab: .constant(0), user: nil) // Gunakan .constant(0) untuk preview
         .environmentObject(APIService())
         .environmentObject(CameraViewModel())
         .environment(\.managedObjectContext, PersistenceController.shared.context)

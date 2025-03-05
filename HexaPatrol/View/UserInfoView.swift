@@ -11,6 +11,7 @@ struct UserInfoView: View {
     @EnvironmentObject var viewModel: APIService
     @EnvironmentObject var cameraViewModel: CameraViewModel
     @State private var searchText = ""
+    @State private var selectedTab = 0
     let user: User?
     
     let plantData: PlantData = PlantData(plantID: 1, plantName: "Plant 1", areaData: [
@@ -26,13 +27,14 @@ struct UserInfoView: View {
     ])
     
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             // Home Tab
-            HomeTabView( user: user)
+            HomeTabView(selectedTab: $selectedTab, user: user)
                 .tabItem {
                     Image(systemName: "house")
                     Text("Home")
                 }
+                .tag(0)
             
             //MARK: ActivityTab
 //            ActivityView(viewModel:viewModel)
@@ -43,18 +45,13 @@ struct UserInfoView: View {
 
             //MARK: History Tab
             NavigationStack {
-                VStack {
-                    Spacer()
-                        .font(.title)
-                    // Add content for History tab here
-                }
-                .navigationTitle("History")
-                .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+                HistoryView()
             }
             .tabItem {
                 Image(systemName: "clock.fill")
                 Text("History")
             }
+            .tag(1)
 
             //MARK: User Details Tab
             NavigationStack {
@@ -65,6 +62,7 @@ struct UserInfoView: View {
                 Image(systemName: "person.circle.fill")
                 Text("Me")
             }
+            .tag(2)
         }
         .onAppear {
             let tabBarAppearance = UITabBarAppearance()
